@@ -1,34 +1,58 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/binarysoupdev/cryptool/crypt"
+	"github.com/binarysoupdev/cryptool/util"
 )
 
+const CRYPT_EXT = ".crypt"
+
 func main() {
-	key := "password123"
+	file := flag.String("i", "", "")
+	flag.Parse()
 
-	c, err := crypt.New(key)
+	key := "foobar"
+
+	err := run(key, *file)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		fmt.Printf("ERROR: %s", err)
 	}
-
-	plaintext := "foobar"
-	run(c, plaintext)
-	run(c, plaintext)
 }
 
-func run(c crypt.Crypt, plaintext string) {
-	ciphertext, err := c.Encrypt([]byte(plaintext))
+func run(key, file string) error {
+	c, err := crypt.New(key)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		return util.ChainError(err, "error creating crypt object")
 	}
-	fmt.Println(ciphertext)
 
-	bytes, err := c.Decrypt(ciphertext)
+	bytes, err := os.ReadFile(file)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		return util.ChainError(err, "error reading input file")
 	}
-	fmt.Println(string(bytes))
+
+	if filepath.Ext(file) == CRYPT_EXT {
+		return nil
+	} else {
+		return encrypt(c, bytes, file+CRYPT_EXT)
+	}
+}
+
+func encrypt(c crypt.Crypt, plaintext []byte, file string) error {
+	ciphertext, err := c.Encrypt(plaintext)
+	if err != nil {
+		return util.ChainError(err, "error encrypting plaintext")
+	}
+
+	err = os.WriteFile(file, ciphertext, 0666)
+	if err != nil {
+		return util.ChainError(err, "error wrting encrypted file")
+	}
+
+	fmt.Printf("+ %s\n", file)
+	return nil
 }

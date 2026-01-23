@@ -1,6 +1,10 @@
 package crypt
 
-import "crypto/rand"
+import (
+	"crypto/rand"
+
+	"github.com/binarysoupdev/cryptool/util"
+)
 
 func (c Crypt) Encrypt(plaintext []byte) (Ciphertext, error) {
 	nonce := make([]byte, c.cipher.NonceSize())
@@ -13,7 +17,7 @@ func (c Crypt) Encrypt(plaintext []byte) (Ciphertext, error) {
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
 	plaintext, err := c.cipher.Open(nil, ct.Nonce(), ct.Text(), nil)
 	if err != nil {
-		return nil, chainError(err, "error decryting ciphertext")
+		return nil, util.ChainError(err, "error decryting ciphertext")
 	}
 
 	return plaintext, nil

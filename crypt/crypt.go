@@ -6,6 +6,8 @@ import (
 	"crypto/pbkdf2"
 	"crypto/rand"
 	"crypto/sha256"
+
+	"github.com/binarysoupdev/cryptool/util"
 )
 
 const (
@@ -24,17 +26,17 @@ func New(password string) (Crypt, error) {
 
 	key, err := pbkdf2.Key(sha256.New, password, salt, PBKDF2_ITERATIONS, KEY_SIZE)
 	if err != nil {
-		return Crypt{}, chainError(err, "error generating key from password")
+		return Crypt{}, util.ChainError(err, "error generating key from password")
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return Crypt{}, chainError(err, "error creating AES cipher")
+		return Crypt{}, util.ChainError(err, "error creating AES cipher")
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return Crypt{}, chainError(err, "error creating GCM mode")
+		return Crypt{}, util.ChainError(err, "error creating GCM mode")
 	}
 
 	return Crypt{
