@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -20,7 +21,7 @@ func main() {
 
 	err := run(key, *file)
 	if err != nil {
-		fmt.Printf("ERROR: %s", err)
+		fmt.Printf("ERROR: %s\n", err)
 	}
 }
 
@@ -36,7 +37,7 @@ func run(key, file string) error {
 	}
 
 	if filepath.Ext(file) == CRYPT_EXT {
-		return nil
+		return errors.New("DECRYPT not implemented")
 	} else {
 		return encrypt(c, bytes, file+CRYPT_EXT)
 	}
