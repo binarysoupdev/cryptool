@@ -8,8 +8,16 @@ const (
 
 func NewCiphertext(nonce, text []byte) Ciphertext {
 	ct := make(Ciphertext, NONCE_SIZE+len(text))
-	copy(ct[:NONCE_SIZE], nonce)
-	copy(ct[NONCE_SIZE:], text)
+	copy(ct.Nonce(), nonce)
+	copy(ct.Text(), text)
 
 	return ct
+}
+
+func (ct Ciphertext) Nonce() []byte {
+	return ct[:NONCE_SIZE]
+}
+
+func (ct Ciphertext) Text() []byte {
+	return ct[NONCE_SIZE:]
 }
