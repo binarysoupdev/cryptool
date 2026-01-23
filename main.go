@@ -15,8 +15,13 @@ import (
 const CRYPT_EXT = ".crypt"
 
 func main() {
-	file := flag.String("i", "", "")
-	rm := flag.Bool("rm", false, "")
+	flag.Usage = func() {
+		fmt.Println("Simple cryptography tool to encrypt/decrypt a file with a password.")
+		flag.PrintDefaults()
+	}
+
+	file := flag.String("i", "", "the file to encrypt/decrypt")
+	rm := flag.Bool("rm", false, "remove the old file")
 	flag.Parse()
 
 	err := run(*file, *rm)
