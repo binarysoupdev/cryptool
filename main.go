@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -37,14 +36,14 @@ func run(key, file string) error {
 	}
 
 	if filepath.Ext(file) == CRYPT_EXT {
-		return errors.New("DECRYPT not implemented")
+		return decrypt(c, bytes, file[:len(file)-len(CRYPT_EXT)])
 	} else {
 		return encrypt(c, bytes, file+CRYPT_EXT)
 	}
 }
 
-func encrypt(c crypt.Crypt, plaintext []byte, file string) error {
-	ciphertext, err := c.Encrypt(plaintext)
+func encrypt(c crypt.Crypt, bytes []byte, file string) error {
+	ciphertext, err := c.Encrypt(bytes)
 	if err != nil {
 		return util.ChainError(err, "error encrypting plaintext")
 	}
@@ -52,6 +51,21 @@ func encrypt(c crypt.Crypt, plaintext []byte, file string) error {
 	err = os.WriteFile(file, ciphertext, 0666)
 	if err != nil {
 		return util.ChainError(err, "error wrting encrypted file")
+	}
+
+	fmt.Printf("+ %s\n", file)
+	return nil
+}
+
+func decrypt(c crypt.Crypt, bytes []byte, file string) error {
+	plaintext, err := c.Decrypt(bytes)
+	if err != nil {
+		return util.ChainError(err, "error decrypting ciphertext")
+	}
+
+	err = os.WriteFile(file, plaintext, 0666)
+	if err != nil {
+		return util.ChainError(err, "error wrting decrypted file")
 	}
 
 	fmt.Printf("+ %s\n", file)
