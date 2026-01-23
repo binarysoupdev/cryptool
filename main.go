@@ -16,15 +16,16 @@ const CRYPT_EXT = ".crypt"
 
 func main() {
 	file := flag.String("i", "", "")
+	rm := flag.Bool("rm", false, "")
 	flag.Parse()
 
-	err := run(*file)
+	err := run(*file, *rm)
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)
 	}
 }
 
-func run(file string) error {
+func run(file string, remove bool) error {
 	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return util.ChainError(err, "error reading input file")
@@ -37,10 +38,19 @@ func run(file string) error {
 	}
 
 	if filepath.Ext(file) == CRYPT_EXT {
-		return decrypt(string(key), bytes, file[:len(file)-len(CRYPT_EXT)])
+		err = decrypt(string(key), bytes, file[:len(file)-len(CRYPT_EXT)])
 	} else {
-		return encrypt(string(key), bytes, file+CRYPT_EXT)
+		err = encrypt(string(key), bytes, file+CRYPT_EXT)
 	}
+	if err != nil {
+		return err
+	}
+
+	if remove {
+		os.Remove(file)
+		fmt.Printf("[-] %s\n", file)
+	}
+	return nil
 }
 
 func encrypt(key string, plaintext []byte, file string) error {
@@ -65,7 +75,7 @@ func encrypt(key string, plaintext []byte, file string) error {
 		return util.ChainError(err, "error writing encrypted file")
 	}
 
-	fmt.Printf("> %s\n", file)
+	fmt.Printf("[+] %s\n", file)
 	return nil
 }
 
@@ -85,6 +95,6 @@ func decrypt(key string, ct crypt.Ciphertext, file string) error {
 		return util.ChainError(err, "error writing decrypted file")
 	}
 
-	fmt.Printf("> %s\n", file)
+	fmt.Printf("[+] %s\n", file)
 	return nil
 }
