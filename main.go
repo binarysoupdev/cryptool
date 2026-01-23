@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -43,6 +44,16 @@ func run(file string) error {
 }
 
 func encrypt(key string, plaintext []byte, file string) error {
+	fmt.Println("Verify PASSWORD:")
+	verify, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return util.ChainError(err, "error reading password from terminal")
+	}
+
+	if string(verify) != key {
+		return errors.New("passwords do not match")
+	}
+
 	c, err := crypt.New(key)
 	if err != nil {
 		return util.ChainError(err, "error creating crypt object")
