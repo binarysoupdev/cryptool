@@ -8,7 +8,7 @@ import (
 
 	"github.com/binarysoupdev/cryptool/crypt"
 	"github.com/binarysoupdev/cryptool/util"
-"golang.org/x/term"
+	"golang.org/x/term"
 )
 
 const CRYPT_EXT = ".crypt"
@@ -51,7 +51,7 @@ func encrypt(key string, plaintext []byte, file string) error {
 
 	err = os.WriteFile(file, ciphertext, 0666)
 	if err != nil {
-		return util.ChainError(err, "error wrting encrypted file")
+		return util.ChainError(err, "error writing encrypted file")
 	}
 
 	fmt.Printf("> %s\n", file)
@@ -71,7 +71,7 @@ func decrypt(key string, ct crypt.Ciphertext, file string) error {
 
 	err = os.WriteFile(file, plaintext, 0666)
 	if err != nil {
-		return util.ChainError(err, "error wrting decrypted file")
+		return util.ChainError(err, "error writing decrypted file")
 	}
 
 	fmt.Printf("> %s\n", file)

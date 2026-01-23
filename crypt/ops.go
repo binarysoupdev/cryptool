@@ -17,7 +17,7 @@ func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
 	plaintext, err := c.cipher.Open(nil, ct.Nonce(), ct.Text(), nil)
 	if err != nil {
-		return nil, util.ChainError(err, "error decryting ciphertext")
+		return nil, util.ChainError(err, "error decrypting ciphertext")
 	}
 
 	return plaintext, nil
