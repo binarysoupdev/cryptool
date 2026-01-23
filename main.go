@@ -43,12 +43,9 @@ func run(key, file string) error {
 }
 
 func encrypt(c crypt.Crypt, bytes []byte, file string) error {
-	ciphertext, err := c.Encrypt(bytes)
-	if err != nil {
-		return util.ChainError(err, "error encrypting plaintext")
-	}
+	ciphertext := c.Encrypt(bytes)
 
-	err = os.WriteFile(file, ciphertext, 0666)
+	err := os.WriteFile(file, ciphertext, 0666)
 	if err != nil {
 		return util.ChainError(err, "error wrting encrypted file")
 	}
@@ -60,7 +57,7 @@ func encrypt(c crypt.Crypt, bytes []byte, file string) error {
 func decrypt(c crypt.Crypt, bytes []byte, file string) error {
 	plaintext, err := c.Decrypt(bytes)
 	if err != nil {
-		return util.ChainError(err, "error decrypting ciphertext")
+		return err
 	}
 
 	err = os.WriteFile(file, plaintext, 0666)
