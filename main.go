@@ -9,13 +9,15 @@ import (
 func main() {
 	plaintext := "foobar"
 
-	ciphertext, err := crypt.Encrypt([]byte(plaintext))
+	c, err := crypt.New()
+
+	ciphertext, err := c.Encrypt([]byte(plaintext))
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)
 	}
 	fmt.Println(ciphertext)
 
-	bytes, err := crypt.Decrypt(ciphertext)
+	bytes, err := c.Decrypt(ciphertext)
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)
 	}
