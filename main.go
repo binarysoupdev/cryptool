@@ -8,6 +8,7 @@ import (
 
 	"github.com/binarysoupdev/cryptool/crypt"
 	"github.com/binarysoupdev/cryptool/util"
+"golang.org/x/term"
 )
 
 const CRYPT_EXT = ".crypt"
@@ -16,24 +17,28 @@ func main() {
 	file := flag.String("i", "", "")
 	flag.Parse()
 
-	key := "foobar"
-
-	err := run(key, *file)
+	err := run(*file)
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)
 	}
 }
 
-func run(key, file string) error {
+func run(file string) error {
 	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return util.ChainError(err, "error reading input file")
 	}
 
+	fmt.Println("Enter PASSWORD:")
+	key, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		return util.ChainError(err, "error reading password from terminal")
+	}
+
 	if filepath.Ext(file) == CRYPT_EXT {
-		return decrypt(key, bytes, file[:len(file)-len(CRYPT_EXT)])
+		return decrypt(string(key), bytes, file[:len(file)-len(CRYPT_EXT)])
 	} else {
-		return encrypt(key, bytes, file+CRYPT_EXT)
+		return encrypt(string(key), bytes, file+CRYPT_EXT)
 	}
 }
 
