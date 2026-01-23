@@ -35,12 +35,12 @@ func Load(password string, salt []byte) (Crypt, error) {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return Crypt{}, util.ChainError(err, "error creating AES cipher")
+		return Crypt{}, util.ChainError(err, "error creating cipher")
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return Crypt{}, util.ChainError(err, "error creating GCM mode")
+		return Crypt{}, util.ChainError(err, "error creating cipher")
 	}
 
 	return Crypt{
