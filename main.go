@@ -1,7 +1,18 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/binarysoupdev/cryptool/crypt"
+)
 
 func main() {
-	fmt.Println("Hello World!")
+	plaintext := "foobar"
+
+	ciphertext, err := crypt.Encrypt([]byte(plaintext))
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err)
+	}
+
+	fmt.Println(ciphertext)
 }
