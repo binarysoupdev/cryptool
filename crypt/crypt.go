@@ -13,17 +13,21 @@ import (
 const (
 	KEY_SIZE          = 32 // AES-256
 	PBKDF2_ITERATIONS = 100_000
-	SALT_SIZE         = 16
 )
 
 type Crypt struct {
 	cipher cipher.AEAD
+	salt   []byte
 }
 
 func New(password string) (Crypt, error) {
 	salt := make([]byte, SALT_SIZE)
 	rand.Read(salt)
 
+	return Load(password, salt)
+}
+
+func Load(password string, salt []byte) (Crypt, error) {
 	key, err := pbkdf2.Key(sha256.New, password, salt, PBKDF2_ITERATIONS, KEY_SIZE)
 	if err != nil {
 		return Crypt{}, util.ChainError(err, "error generating key from password")
@@ -41,5 +45,6 @@ func New(password string) (Crypt, error) {
 
 	return Crypt{
 		cipher: gcm,
+		salt:   salt,
 	}, nil
 }

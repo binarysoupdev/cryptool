@@ -7,11 +7,11 @@ import (
 )
 
 func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
-	nonce := make([]byte, c.cipher.NonceSize())
+	nonce := make([]byte, NONCE_SIZE)
 	rand.Read(nonce)
 
 	ciphertext := c.cipher.Seal(nil, nonce, plaintext, nil)
-	return NewCiphertext(nonce, ciphertext)
+	return NewCiphertext(c.salt, nonce, ciphertext)
 }
 
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {

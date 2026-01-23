@@ -25,37 +25,41 @@ func main() {
 }
 
 func run(key, file string) error {
-	c, err := crypt.New(key)
-	if err != nil {
-		return util.ChainError(err, "error creating crypt object")
-	}
-
 	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return util.ChainError(err, "error reading input file")
 	}
 
 	if filepath.Ext(file) == CRYPT_EXT {
-		return decrypt(c, bytes, file[:len(file)-len(CRYPT_EXT)])
+		return decrypt(key, bytes, file[:len(file)-len(CRYPT_EXT)])
 	} else {
-		return encrypt(c, bytes, file+CRYPT_EXT)
+		return encrypt(key, bytes, file+CRYPT_EXT)
 	}
 }
 
-func encrypt(c crypt.Crypt, bytes []byte, file string) error {
-	ciphertext := c.Encrypt(bytes)
+func encrypt(key string, plaintext []byte, file string) error {
+	c, err := crypt.New(key)
+	if err != nil {
+		return util.ChainError(err, "error creating crypt object")
+	}
+	ciphertext := c.Encrypt(plaintext)
 
-	err := os.WriteFile(file, ciphertext, 0666)
+	err = os.WriteFile(file, ciphertext, 0666)
 	if err != nil {
 		return util.ChainError(err, "error wrting encrypted file")
 	}
 
-	fmt.Printf("+ %s\n", file)
+	fmt.Printf("> %s\n", file)
 	return nil
 }
 
-func decrypt(c crypt.Crypt, bytes []byte, file string) error {
-	plaintext, err := c.Decrypt(bytes)
+func decrypt(key string, ct crypt.Ciphertext, file string) error {
+	c, err := crypt.Load(key, ct.Salt())
+	if err != nil {
+		return util.ChainError(err, "error loading crypt object")
+	}
+
+	plaintext, err := c.Decrypt(ct)
 	if err != nil {
 		return err
 	}
@@ -65,6 +69,6 @@ func decrypt(c crypt.Crypt, bytes []byte, file string) error {
 		return util.ChainError(err, "error wrting decrypted file")
 	}
 
-	fmt.Printf("+ %s\n", file)
+	fmt.Printf("> %s\n", file)
 	return nil
 }
