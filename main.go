@@ -13,6 +13,11 @@ func main() {
 	if err != nil {
 		fmt.Printf("ERROR: %s\n", err)
 	}
-
 	fmt.Println(ciphertext)
+
+	bytes, err := crypt.Decrypt(ciphertext)
+	if err != nil {
+		fmt.Printf("ERROR: %s\n", err)
+	}
+	fmt.Println(string(bytes))
 }
