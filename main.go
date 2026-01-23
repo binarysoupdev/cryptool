@@ -9,7 +9,7 @@ import (
 func main() {
 	plaintext := "foobar"
 
-	c, err := crypt.New()
+	c, err := crypt.New("password123")
 
 	ciphertext, err := c.Encrypt([]byte(plaintext))
 	if err != nil {
