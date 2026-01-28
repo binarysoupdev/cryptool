@@ -39,7 +39,7 @@ func run(file string, remove bool) error {
 	fmt.Println("Enter PASSWORD:")
 	key, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
-		return util.ChainError(err, "error reading password from terminal")
+		panic(err)
 	}
 
 	if filepath.Ext(file) == CRYPT_EXT {
@@ -62,18 +62,14 @@ func encrypt(key string, plaintext []byte, file string) error {
 	fmt.Println("Verify PASSWORD:")
 	verify, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
-		return util.ChainError(err, "error reading password from terminal")
+		panic(err)
 	}
 
 	if string(verify) != key {
 		return errors.New("passwords do not match")
 	}
 
-	c, err := crypt.New(key)
-	if err != nil {
-		return util.ChainError(err, "error creating crypt object")
-	}
-	ciphertext := c.Encrypt(plaintext)
+	ciphertext := crypt.New(key).Encrypt(plaintext)
 
 	err = os.WriteFile(file, ciphertext, 0666)
 	if err != nil {
@@ -85,12 +81,7 @@ func encrypt(key string, plaintext []byte, file string) error {
 }
 
 func decrypt(key string, ct crypt.Ciphertext, file string) error {
-	c, err := crypt.Load(key, ct.Salt())
-	if err != nil {
-		return util.ChainError(err, "error loading crypt object")
-	}
-
-	plaintext, err := c.Decrypt(ct)
+	plaintext, err := crypt.Load(key, ct.Salt()).Decrypt(ct)
 	if err != nil {
 		return err
 	}

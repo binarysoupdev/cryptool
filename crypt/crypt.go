@@ -6,8 +6,6 @@ import (
 	"crypto/pbkdf2"
 	"crypto/rand"
 	"crypto/sha256"
-
-	"github.com/binarysoupdev/cryptool/util"
 )
 
 const (
@@ -20,31 +18,31 @@ type Crypt struct {
 	salt   []byte
 }
 
-func New(password string) (Crypt, error) {
+func New(password string) Crypt {
 	salt := make([]byte, SALT_SIZE)
 	rand.Read(salt)
 
 	return Load(password, salt)
 }
 
-func Load(password string, salt []byte) (Crypt, error) {
+func Load(password string, salt []byte) Crypt {
 	key, err := pbkdf2.Key(sha256.New, password, salt, PBKDF2_ITERATIONS, KEY_SIZE)
 	if err != nil {
-		return Crypt{}, util.ChainError(err, "error generating key from password")
+		panic(err)
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return Crypt{}, util.ChainError(err, "error creating cipher")
+		panic(err)
 	}
 
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return Crypt{}, util.ChainError(err, "error creating cipher")
+		panic(err)
 	}
 
 	return Crypt{
 		cipher: gcm,
 		salt:   salt,
-	}, nil
+	}
 }
