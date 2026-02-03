@@ -11,6 +11,7 @@ import (
 const (
 	KEY_SIZE          = 32 // AES-256
 	PBKDF2_ITERATIONS = 100_000
+	SALT_SIZE         = 16
 )
 
 type Crypt struct {

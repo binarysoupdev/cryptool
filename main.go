@@ -36,16 +36,10 @@ func run(file string, remove bool) error {
 		return util.ChainError(err, "error reading input file")
 	}
 
-	fmt.Println("Enter PASSWORD:")
-	key, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		panic(err)
-	}
-
 	if filepath.Ext(file) == CRYPT_EXT {
-		err = decrypt(string(key), bytes, file[:len(file)-len(CRYPT_EXT)])
+		err = decrypt(bytes, file[:len(file)-len(CRYPT_EXT)])
 	} else {
-		err = encrypt(string(key), bytes, file+CRYPT_EXT)
+		err = encrypt(bytes, file+CRYPT_EXT)
 	}
 	if err != nil {
 		return err
@@ -58,39 +52,48 @@ func run(file string, remove bool) error {
 	return nil
 }
 
-func encrypt(key string, plaintext []byte, file string) error {
-	fmt.Println("Verify PASSWORD:")
-	verify, err := term.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		panic(err)
-	}
+func encrypt(in []byte, out string) error {
+	password := promptPassword("NEW")
+	verify := promptPassword("VERIFY")
 
-	if string(verify) != key {
+	if verify != password {
 		return errors.New("passwords do not match")
 	}
 
-	ciphertext := crypt.New(key).Encrypt(plaintext)
+	salt, ciphertext := crypt.New(password).Encrypt(in)
 
-	err = os.WriteFile(file, ciphertext, 0666)
+	err := os.WriteFile(out, append(salt, ciphertext...), 0666)
 	if err != nil {
 		return util.ChainError(err, "error writing encrypted file")
 	}
 
-	fmt.Printf("[+] %s\n", file)
+	fmt.Printf("[+] %s\n", out)
 	return nil
 }
 
-func decrypt(key string, ct crypt.Ciphertext, file string) error {
-	plaintext, err := crypt.Load(key, ct.Salt()).Decrypt(ct)
+func decrypt(in []byte, out string) error {
+	password := promptPassword("ENTER")
+
+	plaintext, err := crypt.Load(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(file, plaintext, 0666)
+	err = os.WriteFile(out, plaintext, 0666)
 	if err != nil {
 		return util.ChainError(err, "error writing decrypted file")
 	}
 
-	fmt.Printf("[+] %s\n", file)
+	fmt.Printf("[+] %s\n", out)
 	return nil
+}
+
+func promptPassword(prompt string) string {
+	fmt.Printf("%s PASSWORD:\n", prompt)
+
+	password, err := term.ReadPassword(int(os.Stdin.Fd()))
+	if err != nil {
+		panic(err)
+	}
+	return string(password)
 }

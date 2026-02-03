@@ -6,12 +6,12 @@ import (
 	"github.com/binarysoupdev/cryptool/util"
 )
 
-func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
+func (c Crypt) Encrypt(plaintext []byte) ([]byte, Ciphertext) {
 	nonce := make([]byte, NONCE_SIZE)
 	rand.Read(nonce)
 
 	ciphertext := c.cipher.Seal(nil, nonce, plaintext, nil)
-	return NewCiphertext(c.salt, nonce, ciphertext)
+	return c.salt, NewCiphertext(nonce, ciphertext)
 }
 
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
