@@ -10,7 +10,7 @@ import (
 
 func main() {
 	flag.Usage = func() {
-		style.Info.Println("Simple cryptography tool to encrypt/decrypt a file with a password.")
+		style.Info.Println("Simple cryptography tool to encrypt/decrypt a file with a password:")
 		flag.PrintDefaults()
 	}
 
