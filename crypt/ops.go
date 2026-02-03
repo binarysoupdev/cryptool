@@ -10,8 +10,7 @@ func (c Crypt) Encrypt(plaintext []byte) ([]byte, Ciphertext) {
 	nonce := make([]byte, NONCE_SIZE)
 	rand.Read(nonce)
 
-	ciphertext := c.cipher.Seal(nil, nonce, plaintext, nil)
-	return c.salt, NewCiphertext(nonce, ciphertext)
+	return c.salt, c.cipher.Seal(nonce, nonce, plaintext, nil)
 }
 
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
