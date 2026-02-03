@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 
@@ -11,6 +12,10 @@ import (
 const CRYPT_EXT = ".crypt"
 
 func Run(file string, remove bool) error {
+	if file == "" {
+		return errors.New("filepath cannot be empty")
+	}
+
 	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return util.ChainError(err, "error reading input file")
