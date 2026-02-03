@@ -1,11 +1,11 @@
 package app
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/binarysoupdev/cryptool/util"
+	"github.com/binarysoupdev/got-style/style"
 )
 
 const CRYPT_EXT = ".crypt"
@@ -27,7 +27,7 @@ func Run(file string, remove bool) error {
 
 	if remove {
 		os.Remove(file)
-		fmt.Printf("[-] %s\n", file)
+		style.Delete.PrintF("[-] %s\n", file)
 	}
 	return nil
 }

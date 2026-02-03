@@ -2,11 +2,11 @@ package app
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/binarysoupdev/cryptool/crypt"
 	"github.com/binarysoupdev/cryptool/util"
+	"github.com/binarysoupdev/got-style/style"
 )
 
 func encrypt(in []byte, out string) error {
@@ -24,7 +24,7 @@ func encrypt(in []byte, out string) error {
 		return util.ChainError(err, "error writing encrypted file")
 	}
 
-	fmt.Printf("[+] %s\n", out)
+	style.Create.PrintF("[+] %s\n", out)
 	return nil
 }
 
@@ -41,6 +41,6 @@ func decrypt(in []byte, out string) error {
 		return util.ChainError(err, "error writing decrypted file")
 	}
 
-	fmt.Printf("[+] %s\n", out)
+	style.Create.PrintF("[+] %s\n", out)
 	return nil
 }

@@ -5,11 +5,12 @@ import (
 	"fmt"
 
 	"github.com/binarysoupdev/cryptool/app"
+	"github.com/binarysoupdev/got-style/style"
 )
 
 func main() {
 	flag.Usage = func() {
-		fmt.Println("Simple cryptography tool to encrypt/decrypt a file with a password.")
+		style.Info.Println("Simple cryptography tool to encrypt/decrypt a file with a password.")
 		flag.PrintDefaults()
 	}
 
@@ -19,6 +20,7 @@ func main() {
 
 	err := app.Run(*file, *rm)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		style.BoldError.Print("ERROR: ")
+		fmt.Println(err)
 	}
 }
