@@ -16,14 +16,13 @@ const (
 
 type Crypt struct {
 	cipher cipher.AEAD
-	salt   []byte
 }
 
-func New(password string) Crypt {
+func New(password string) (Crypt, []byte) {
 	salt := make([]byte, SALT_SIZE)
 	rand.Read(salt)
 
-	return Load(password, salt)
+	return Load(password, salt), salt
 }
 
 func Load(password string, salt []byte) Crypt {
@@ -44,6 +43,5 @@ func Load(password string, salt []byte) Crypt {
 
 	return Crypt{
 		cipher: gcm,
-		salt:   salt,
 	}
 }

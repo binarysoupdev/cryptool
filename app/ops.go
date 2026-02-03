@@ -17,7 +17,8 @@ func encrypt(in []byte, out string) error {
 		return errors.New("passwords do not match")
 	}
 
-	salt, ciphertext := crypt.New(password).Encrypt(in)
+	c, salt := crypt.New(password)
+	ciphertext := c.Encrypt(in)
 
 	err := os.WriteFile(out, append(salt, ciphertext...), 0666)
 	if err != nil {
