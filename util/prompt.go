@@ -1,4 +1,4 @@
-package app
+package util
 
 import (
 	"fmt"
@@ -7,12 +7,14 @@ import (
 	"golang.org/x/term"
 )
 
-func promptPassword(prompt string) string {
-	fmt.Printf("%s PASSWORD:\n", prompt)
+func PromptPassword(prompt string) string {
+	fmt.Printf("%s PASSWORD: ", prompt)
 
 	password, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println()
 	return string(password)
 }

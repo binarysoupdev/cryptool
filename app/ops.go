@@ -10,8 +10,8 @@ import (
 )
 
 func encrypt(in []byte, out string) error {
-	password := promptPassword("NEW")
-	verify := promptPassword("VERIFY")
+	password := util.PromptPassword("New")
+	verify := util.PromptPassword("Verify")
 
 	if verify != password {
 		return errors.New("passwords do not match")
@@ -30,7 +30,7 @@ func encrypt(in []byte, out string) error {
 }
 
 func decrypt(in []byte, out string) error {
-	password := promptPassword("ENTER")
+	password := util.PromptPassword("Enter")
 
 	plaintext, err := crypt.Load(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
 	if err != nil {
