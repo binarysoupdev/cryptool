@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/binarysoupdev/tonsole/testio"
 	"golang.org/x/term"
 )
 
@@ -30,6 +31,8 @@ func readTerminal(fd int) string {
 }
 
 func readStdin() string {
+	testio.Notify()
+
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 
