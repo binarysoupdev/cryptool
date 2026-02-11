@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/binarysoupdev/cryptool/util"
-	"github.com/binarysoupdev/tonsole/rand"
-	"github.com/binarysoupdev/tonsole/testio"
+	"github.com/binarysoupdev/tinsel/rand"
+	"github.com/binarysoupdev/tinsel/tinsel"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,18 +15,18 @@ func TestReadPasswordFromTerminal(t *testing.T) {
 	PROMPT := r.ASCII(10)
 	PASSWORD := r.ASCII(30)
 
-	out := testio.OpenStdoutPipe()
-	defer out.Restore()
+	in := tinsel.OpenStdinPipe(1)
+	defer in.Close()
 
-	in := testio.OpenStdinPipe()
-	defer in.Restore()
+	out := tinsel.OpenStdoutPipe()
+	defer out.Close()
 
 	//-- act
 	in.Submit(PASSWORD)
 	res := util.PromptPassword(PROMPT)
-	out.CloseInput()
+	out.EndLine()
 
 	//-- assert
 	assert.Equal(t, PASSWORD, res)
-	assert.Contains(t, out.NextLine(t), PROMPT)
+	assert.Contains(t, out.ReadLine(), PROMPT)
 }

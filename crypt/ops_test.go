@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/binarysoupdev/cryptool/crypt"
-	"github.com/binarysoupdev/tonsole/rand"
+	"github.com/binarysoupdev/tinsel/rand"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

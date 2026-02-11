@@ -4,8 +4,8 @@ go 1.25
 
 require golang.org/x/term v0.39.0
 
-require github.com/binarysoupdev/tonsole v0.1.0
-replace github.com/binarysoupdev/tonsole => ../tonsole
+require github.com/binarysoupdev/tinsel v0.1.0
+replace github.com/binarysoupdev/tinsel => ../tinsel
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/binarysoupdev/tonsole/testio"
+	"github.com/binarysoupdev/tinsel/tinsel"
 	"golang.org/x/term"
 )
 
@@ -31,10 +31,12 @@ func readTerminal(fd int) string {
 }
 
 func readStdin() string {
-	testio.Notify()
+	tinsel.QueueInput()
 
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Scan()
+	password, err := bufio.NewReader(os.Stdin).ReadString('\n')
+	if err != nil {
+		panic(err)
+	}
 
-	return scanner.Text()
+	return password[:len(password)-1]
 }
