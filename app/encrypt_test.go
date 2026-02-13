@@ -15,23 +15,26 @@ import (
 
 type EncryptSuite struct {
 	suite.Suite
-	Filepath string
-}
-
-func TestEncryptSuite(t *testing.T) {
-	suite.Run(t, &EncryptSuite{})
+	PlaintextFile  string
+	CiphertextFile string
 }
 
 func (s *EncryptSuite) SetupTest() {
 	r := rand.New(SEED)
 	var f *os.File
 
-	f, s.Filepath = file.Create(s.T(), r.ASCII(10))
+	f, s.PlaintextFile = file.Create(s.T(), r.ASCII(10))
 	f.Write(r.Bytes(50))
 	f.Close()
+
+	s.CiphertextFile = s.PlaintextFile + app.CRYPT_EXT
 }
 
 //==============================
+
+func TestEncryptSuite(t *testing.T) {
+	suite.Run(t, &EncryptSuite{})
+}
 
 func (s *EncryptSuite) TestRunEncryptWrongVerify() {
 	//-- arrange
@@ -46,7 +49,7 @@ func (s *EncryptSuite) TestRunEncryptWrongVerify() {
 
 	//-- act
 	in.Submit(PASSWORD, PASSWORD+"x")
-	res := app.Run(s.Filepath, false)
+	res := app.Run(s.PlaintextFile, false)
 
 	//-- assert
 	require.Error(s.T(), res)
@@ -68,16 +71,16 @@ func (s *EncryptSuite) TestRunEncryptNoRemove() {
 
 	//-- act
 	in.Submit(PASSWORD, PASSWORD)
-	res := app.Run(s.Filepath, false)
+	res := app.Run(s.PlaintextFile, false)
 
 	//-- assert
 	require.NoError(s.T(), res)
 	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
 
-	assert.FileExists(s.T(), s.Filepath)
-	assert.FileExists(s.T(), s.Filepath+app.CRYPT_EXT)
+	assert.FileExists(s.T(), s.PlaintextFile)
+	assert.FileExists(s.T(), s.CiphertextFile)
 
-	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.Filepath+app.CRYPT_EXT)
+	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.CiphertextFile)
 }
 
 func (s *EncryptSuite) TestRunEncryptWithRemove() {
@@ -93,15 +96,15 @@ func (s *EncryptSuite) TestRunEncryptWithRemove() {
 
 	//-- act
 	in.Submit(PASSWORD, PASSWORD)
-	res := app.Run(s.Filepath, true)
+	res := app.Run(s.PlaintextFile, true)
 
 	//-- assert
 	require.NoError(s.T(), res)
 	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
 
-	assert.NoFileExists(s.T(), s.Filepath)
-	assert.FileExists(s.T(), s.Filepath+app.CRYPT_EXT)
+	assert.NoFileExists(s.T(), s.PlaintextFile)
+	assert.FileExists(s.T(), s.CiphertextFile)
 
-	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.Filepath+app.CRYPT_EXT)
-	assert.Contains(s.T(), out.ReadLine(), "[-] "+s.Filepath)
+	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.CiphertextFile)
+	assert.Contains(s.T(), out.ReadLine(), "[-] "+s.PlaintextFile)
 }
