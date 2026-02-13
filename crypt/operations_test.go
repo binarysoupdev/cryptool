@@ -9,9 +9,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const SEED = 64
+
 func TestEncryptDecryptCorrectKey(t *testing.T) {
 	//-- arrange
-	r := rand.New(1)
+	r := rand.New(SEED)
 	password := r.ASCII(30)
 	plaintext := r.Bytes(100)
 
@@ -26,7 +28,7 @@ func TestEncryptDecryptCorrectKey(t *testing.T) {
 
 func TestEncryptDecryptWrongKey(t *testing.T) {
 	//-- arrange
-	r := rand.New(2)
+	r := rand.New(SEED)
 	password := r.ASCII(30)
 	plaintext := r.Bytes(100)
 

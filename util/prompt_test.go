@@ -9,9 +9,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const SEED = 64
+
 func TestReadPasswordFromTerminal(t *testing.T) {
 	//-- arrange
-	r := rand.New(1)
+	r := rand.New(SEED)
 	PROMPT := r.ASCII(10)
 	PASSWORD := r.ASCII(30)
 
