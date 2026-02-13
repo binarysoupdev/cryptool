@@ -11,7 +11,7 @@ import (
 
 func TestReadPasswordFromTerminal(t *testing.T) {
 	//-- arrange
-	r := rand.New(64)
+	r := rand.New(1)
 	PROMPT := r.ASCII(10)
 	PASSWORD := r.ASCII(30)
 

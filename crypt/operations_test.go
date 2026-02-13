@@ -10,7 +10,7 @@ import (
 )
 
 func TestEncryptDecryptCorrectKey(t *testing.T) {
-	r := rand.New(64)
+	r := rand.New(1)
 	password := r.ASCII(30)
 	plaintext := r.Bytes(100)
 
@@ -22,7 +22,7 @@ func TestEncryptDecryptCorrectKey(t *testing.T) {
 }
 
 func TestEncryptDecryptWrongKey(t *testing.T) {
-	r := rand.New(64)
+	r := rand.New(2)
 	password := r.ASCII(30)
 	plaintext := r.Bytes(100)
 
