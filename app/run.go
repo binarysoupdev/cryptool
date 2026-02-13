@@ -11,6 +11,12 @@ import (
 
 const CRYPT_EXT = ".crypt"
 
+// Runs the app. This tool will encrypt/decrypt a file on disk using a password collected from stdin.
+//
+// 'file' is the path to the plaintext or ciphertext file.
+// If the extension is ".crypt", the app runs decryption; else encryption is used.
+//
+// 'remove' indicates if the original file should be removed after completion.
 func Run(file string, remove bool) error {
 	if file == "" {
 		return errors.New("filepath cannot be empty")
