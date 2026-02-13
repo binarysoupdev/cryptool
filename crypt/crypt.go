@@ -14,10 +14,12 @@ const (
 	SALT_SIZE         = 16
 )
 
+// The Crypt object encapsulates the cipher used for encryption operations.
 type Crypt struct {
 	cipher cipher.AEAD
 }
 
+// Create a new Crypt object from a password and a random salt. Returns the object and the salt.
 func New(password string) (Crypt, []byte) {
 	salt := make([]byte, SALT_SIZE)
 	rand.Read(salt)
@@ -25,6 +27,7 @@ func New(password string) (Crypt, []byte) {
 	return Load(password, salt), salt
 }
 
+// Load a Crypt object from a password and an existing salt. Returns the object.
 func Load(password string, salt []byte) Crypt {
 	key, err := pbkdf2.Key(sha256.New, password, salt, PBKDF2_ITERATIONS, KEY_SIZE)
 	if err != nil {
