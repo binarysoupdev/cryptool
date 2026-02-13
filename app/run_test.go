@@ -23,7 +23,7 @@ func TestRunEmptyFilename(t *testing.T) {
 func TestRunInvalidFilename(t *testing.T) {
 	//-- arrange
 	r := rand.New(SEED)
-	FILE := r.ASCII(15)
+	FILE := r.ASCII(10)
 
 	//-- act
 	res := app.Run(FILE, false)
