@@ -53,9 +53,11 @@ func (s *EncryptSuite) TestRunEncryptWrongVerify() {
 
 	//-- assert
 	require.Error(s.T(), res)
-	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
-
 	assert.Contains(s.T(), res.Error(), "passwords do not match")
+
+	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
+	assert.Contains(s.T(), out.ReadLine(), "New")
+	assert.Contains(s.T(), out.ReadLine(), "Verify")
 }
 
 func (s *EncryptSuite) TestRunEncryptNoRemove() {
@@ -75,11 +77,13 @@ func (s *EncryptSuite) TestRunEncryptNoRemove() {
 
 	//-- assert
 	require.NoError(s.T(), res)
-	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
 
 	assert.FileExists(s.T(), s.PlaintextFile)
 	assert.FileExists(s.T(), s.CiphertextFile)
 
+	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
+	assert.Contains(s.T(), out.ReadLine(), "New")
+	assert.Contains(s.T(), out.ReadLine(), "Verify")
 	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.CiphertextFile)
 }
 
@@ -100,11 +104,13 @@ func (s *EncryptSuite) TestRunEncryptWithRemove() {
 
 	//-- assert
 	require.NoError(s.T(), res)
-	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
 
 	assert.NoFileExists(s.T(), s.PlaintextFile)
 	assert.FileExists(s.T(), s.CiphertextFile)
 
+	assert.Contains(s.T(), out.ReadLine(), "ENCRYPT")
+	assert.Contains(s.T(), out.ReadLine(), "New")
+	assert.Contains(s.T(), out.ReadLine(), "Verify")
 	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.CiphertextFile)
 	assert.Contains(s.T(), out.ReadLine(), "[-] "+s.PlaintextFile)
 }

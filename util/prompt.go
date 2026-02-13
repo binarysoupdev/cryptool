@@ -31,7 +31,7 @@ func readTerminal(fd int) string {
 }
 
 func readStdin() string {
-	tinsel.QueueInput()
+	tinsel.QueueInput(true)
 
 	password, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {

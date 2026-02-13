@@ -57,9 +57,10 @@ func (s *DecryptSuite) TestRunDecryptWrongPassword() {
 
 	//-- assert
 	require.Error(s.T(), res)
-	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
-
 	assert.Contains(s.T(), res.Error(), "error decrypting ciphertext")
+
+	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
+	assert.Contains(s.T(), out.ReadLine(), "Enter")
 }
 
 func (s *DecryptSuite) TestRunDecryptNoRemove() {
@@ -76,11 +77,12 @@ func (s *DecryptSuite) TestRunDecryptNoRemove() {
 
 	//-- assert
 	require.NoError(s.T(), res)
-	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
 
 	assert.FileExists(s.T(), s.CiphertextFile)
 	assert.FileExists(s.T(), s.PlaintextFile)
 
+	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
+	assert.Contains(s.T(), out.ReadLine(), "Enter")
 	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.PlaintextFile)
 }
 
@@ -98,11 +100,12 @@ func (s *DecryptSuite) TestRunDecryptWithRemove() {
 
 	//-- assert
 	require.NoError(s.T(), res)
-	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
 
 	assert.NoFileExists(s.T(), s.CiphertextFile)
 	assert.FileExists(s.T(), s.PlaintextFile)
 
+	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
+	assert.Contains(s.T(), out.ReadLine(), "Enter")
 	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.PlaintextFile)
 	assert.Contains(s.T(), out.ReadLine(), "[-] "+s.CiphertextFile)
 }

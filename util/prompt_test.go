@@ -26,7 +26,6 @@ func TestReadPasswordFromTerminal(t *testing.T) {
 	//-- act
 	in.Submit(PASSWORD)
 	res := util.PromptPassword(PROMPT)
-	out.EndLine()
 
 	//-- assert
 	assert.Equal(t, PASSWORD, res)
