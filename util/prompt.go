@@ -9,6 +9,10 @@ import (
 	"golang.org/x/term"
 )
 
+// Prompt the user to enter a password from stdin.
+// If stdin is a terminal, echoing will be temporarily disabled for security.
+//
+// Prompt is of the form "{prompt} PASSWORD: "
 func PromptPassword(prompt string) string {
 	fmt.Printf("%s PASSWORD: ", prompt)
 	fd := int(os.Stdin.Fd())
