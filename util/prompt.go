@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/binarysoupdev/tinsel/tinsel"
 	"golang.org/x/term"
 )
 
@@ -35,8 +34,6 @@ func readTerminal(fd int) string {
 }
 
 func readStdin() string {
-	tinsel.QueueInput(true)
-
 	password, err := bufio.NewReader(os.Stdin).ReadString('\n')
 	if err != nil {
 		panic(err)

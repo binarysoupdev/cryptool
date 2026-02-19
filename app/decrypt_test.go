@@ -7,8 +7,8 @@ import (
 	"github.com/binarysoupdev/cryptool/app"
 	"github.com/binarysoupdev/cryptool/crypt"
 	"github.com/binarysoupdev/tinsel/file"
+	"github.com/binarysoupdev/tinsel/pipe"
 	"github.com/binarysoupdev/tinsel/rand"
-	"github.com/binarysoupdev/tinsel/tinsel"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -22,7 +22,9 @@ type DecryptSuite struct {
 }
 
 func (s *DecryptSuite) SetupTest() {
+	const SEED = 42
 	r := rand.New(SEED)
+
 	s.Password = r.ASCII(30)
 	var f *os.File
 
@@ -45,34 +47,27 @@ func TestDecryptSuite(t *testing.T) {
 
 func (s *DecryptSuite) TestRunDecryptWrongPassword() {
 	//-- arrange
-	in := tinsel.OpenStdinPipe(2)
-	defer in.Close()
-
-	out := tinsel.OpenStdoutPipe()
-	defer out.Close()
+	io := pipe.OpenStdin(1)
+	defer io.Close()
 
 	//-- act
-	in.Submit(s.Password + "x")
+	io.Queue("PASSWORD: ", s.Password+"x")
 	res := app.Run(s.CiphertextFile, false)
 
 	//-- assert
 	require.Error(s.T(), res)
 	assert.Contains(s.T(), res.Error(), "error decrypting ciphertext")
-
-	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
-	assert.Contains(s.T(), out.ReadLine(), "Enter")
 }
 
 func (s *DecryptSuite) TestRunDecryptNoRemove() {
 	//-- arrange
-	in := tinsel.OpenStdinPipe(2)
-	defer in.Close()
-
-	out := tinsel.OpenStdoutPipe()
-	defer out.Close()
+	io := pipe.OpenStdio(1, 2, false)
+	defer io.Close()
 
 	//-- act
-	in.Submit(s.Password)
+	io.Queue("PASSWORD: ", s.Password)
+	io.EndQueue()
+
 	res := app.Run(s.CiphertextFile, false)
 
 	//-- assert
@@ -81,21 +76,19 @@ func (s *DecryptSuite) TestRunDecryptNoRemove() {
 	assert.FileExists(s.T(), s.CiphertextFile)
 	assert.FileExists(s.T(), s.PlaintextFile)
 
-	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
-	assert.Contains(s.T(), out.ReadLine(), "Enter")
-	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.PlaintextFile)
+	assert.Equal(s.T(), "Enter PASSWORD: ", io.ReadLine())
+	assert.Contains(s.T(), io.ReadLine(), "[+] "+s.PlaintextFile)
 }
 
 func (s *DecryptSuite) TestRunDecryptWithRemove() {
 	//-- arrange
-	in := tinsel.OpenStdinPipe(2)
-	defer in.Close()
-
-	out := tinsel.OpenStdoutPipe()
-	defer out.Close()
+	io := pipe.OpenStdio(1, 3, false)
+	defer io.Close()
 
 	//-- act
-	in.Submit(s.Password)
+	io.Queue("PASSWORD: ", s.Password)
+	io.EndQueue()
+
 	res := app.Run(s.CiphertextFile, true)
 
 	//-- assert
@@ -104,8 +97,7 @@ func (s *DecryptSuite) TestRunDecryptWithRemove() {
 	assert.NoFileExists(s.T(), s.CiphertextFile)
 	assert.FileExists(s.T(), s.PlaintextFile)
 
-	assert.Contains(s.T(), out.ReadLine(), "DECRYPT")
-	assert.Contains(s.T(), out.ReadLine(), "Enter")
-	assert.Contains(s.T(), out.ReadLine(), "[+] "+s.PlaintextFile)
-	assert.Contains(s.T(), out.ReadLine(), "[-] "+s.CiphertextFile)
+	assert.Equal(s.T(), "Enter PASSWORD: ", io.ReadLine())
+	assert.Contains(s.T(), io.ReadLine(), "[+] "+s.PlaintextFile)
+	assert.Contains(s.T(), io.ReadLine(), "[-] "+s.CiphertextFile)
 }

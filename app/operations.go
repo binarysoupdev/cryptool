@@ -10,8 +10,6 @@ import (
 )
 
 func encrypt(in []byte, out string) error {
-	style.BoldInfo.Println("ENCRYPT")
-
 	password := util.PromptPassword("New")
 	verify := util.PromptPassword("Verify")
 
@@ -32,8 +30,6 @@ func encrypt(in []byte, out string) error {
 }
 
 func decrypt(in []byte, out string) error {
-	style.BoldInfo.Println("DECRYPT")
-
 	password := util.PromptPassword("Enter")
 
 	plaintext, err := crypt.Load(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
