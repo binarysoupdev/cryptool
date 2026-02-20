@@ -14,19 +14,10 @@ import (
 // Prompt is of the form "{prompt} PASSWORD: "
 func PromptPassword(prompt string) string {
 	fmt.Printf("%s PASSWORD: ", prompt)
-	fd := int(os.Stdin.Fd())
 
-	if term.IsTerminal(fd) {
-		return readTerminal(fd)
-	} else {
-		return readStdin()
-	}
-}
-
-func readTerminal(fd int) string {
-	password, err := term.ReadPassword(fd)
+	password, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
-		panic(err)
+		return readStdin()
 	}
 
 	fmt.Println()
@@ -34,10 +25,6 @@ func readTerminal(fd int) string {
 }
 
 func readStdin() string {
-	password, err := bufio.NewReader(os.Stdin).ReadString('\n')
-	if err != nil {
-		panic(err)
-	}
-
+	password, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 	return password[:len(password)-1]
 }
