@@ -2,8 +2,6 @@ package crypt
 
 import (
 	"crypto/rand"
-
-	"github.com/binarysoupdev/cryptool/util"
 )
 
 // Encrypt the plaintext and return the resulting ciphertext.
@@ -18,7 +16,7 @@ func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
 	plaintext, err := c.cipher.Open(nil, ct.Nonce(), ct.Text(), nil)
 	if err != nil {
-		return nil, util.ChainError(err, "error decrypting ciphertext")
+		return nil, err
 	}
 
 	return plaintext, nil

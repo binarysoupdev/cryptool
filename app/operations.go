@@ -34,7 +34,7 @@ func decrypt(in []byte, out string) error {
 
 	plaintext, err := crypt.Load(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
 	if err != nil {
-		return err
+		return util.ChainError(err, "error decrypting ciphertext")
 	}
 
 	err = os.WriteFile(out, plaintext, 0666)
