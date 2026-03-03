@@ -3,17 +3,13 @@ package crypt
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/rand"
 )
 
 type Crypt struct {
 	cipher cipher.AEAD
 }
 
-func New() Crypt {
-	key := make([]byte, 32) // 256-bit
-	rand.Read(key)
-
+func New(key []byte) Crypt {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		panic(err)
