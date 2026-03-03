@@ -3,6 +3,7 @@ package crypt
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/rand"
 )
 
 type Crypt struct {
@@ -10,7 +11,8 @@ type Crypt struct {
 }
 
 func New() Crypt {
-	key := make([]byte, 32) //256-bit
+	key := make([]byte, 32) // 256-bit
+	rand.Read(key)
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
