@@ -3,6 +3,13 @@ package crypt
 import (
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/pbkdf2"
+	"crypto/sha256"
+)
+
+const (
+	KEY_SIZE   = 32
+	ITERATIONS = 100_000
 )
 
 type Crypt struct {
@@ -23,4 +30,15 @@ func New(key []byte) Crypt {
 	return Crypt{
 		cipher: cipher,
 	}
+}
+
+func NewFromPassword(password string) Crypt {
+	salt := make([]byte, 16)
+
+	key, err := pbkdf2.Key(sha256.New, password, salt, ITERATIONS, KEY_SIZE)
+	if err != nil {
+		panic(err)
+	}
+
+	return New(key)
 }

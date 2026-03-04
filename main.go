@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"fmt"
 	"log"
@@ -22,10 +23,9 @@ func keyGen() {
 }
 
 func cryptLoop() {
-	key := make([]byte, 32)
-	os.Stdin.Read(key)
+	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 
-	c := crypt.New(key)
+	c := crypt.NewFromPassword(line[:len(line)-1])
 
 	ciphertext := c.Encrypt([]byte("lorem ipsum"))
 	fmt.Println(ciphertext)
