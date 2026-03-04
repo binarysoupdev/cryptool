@@ -23,9 +23,8 @@ func keyGen() {
 }
 
 func cryptLoop() {
-	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
-
-	c := crypt.NewFromPassword(line[:len(line)-1])
+	//c := password()
+	c := keyFile()
 
 	ciphertext := c.Encrypt([]byte("lorem ipsum"))
 	fmt.Println(ciphertext)
@@ -35,4 +34,16 @@ func cryptLoop() {
 		log.Fatal(err)
 	}
 	fmt.Println(string(plaintext))
+}
+
+func password() crypt.Crypt {
+	line, _ := bufio.NewReader(os.Stdin).ReadString('\n')
+	return crypt.NewFromPassword(line[:len(line)-1])
+}
+
+func keyFile() crypt.Crypt {
+	key := make([]byte, 32)
+	os.Stdin.Read(key)
+
+	return crypt.New(key)
 }
