@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/pbkdf2"
+	"crypto/rand"
 	"crypto/sha256"
 )
 
@@ -34,6 +35,7 @@ func New(key []byte) Crypt {
 
 func NewFromPassword(password string) Crypt {
 	salt := make([]byte, 16)
+	rand.Read(salt)
 
 	key, err := pbkdf2.Key(sha256.New, password, salt, ITERATIONS, KEY_SIZE)
 	if err != nil {
