@@ -3,24 +3,27 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/binarysoupdev/cryptool/app"
+	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/got-style/style"
 )
 
 func main() {
-	flag.Usage = func() {
-		style.Info.Println("Simple cryptography tool to encrypt/decrypt a file with a password:")
-		flag.PrintDefaults()
-	}
-
-	file := flag.String("i", "", "the file to encrypt/decrypt")
-	rm := flag.Bool("rm", false, "remove the old file")
+	ls := flag.Bool("ls", false, "list all commands")
 	flag.Parse()
 
-	err := app.Run(*file, *rm)
-	if err != nil {
-		style.BoldError.Print("ERROR: ")
-		fmt.Println(err)
+	runner := command.NewRunner(
+		app.NewAppCommand(),
+	)
+
+	if *ls || len(os.Args) < 2 {
+		runner.ListCommands()
+		return
+	}
+
+	if err := runner.RunCommand(os.Args[1], os.Args[2:]); err != nil {
+		fmt.Printf("%s %s\n", style.BoldError.Sprint("ERROR:"), err.Error())
 	}
 }

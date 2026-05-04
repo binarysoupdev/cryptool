@@ -4,31 +4,37 @@ import (
 	"testing"
 
 	"github.com/binarysoupdev/cryptool/app"
+	"github.com/binarysoupdev/go-commando/test"
 	"github.com/binarysoupdev/tinsel/rand"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-func TestRunEmptyFilename(t *testing.T) {
-	//-- act
-	res := app.Run("", false)
-
-	//-- assert
-	require.Error(t, res)
-	assert.Contains(t, res.Error(), "filepath cannot be empty")
+type AppTestSuite struct {
+	test.CommandSuite[*app.AppCommand]
 }
 
-func TestRunInvalidFilename(t *testing.T) {
-	//-- arrange
-	const SEED = 42
-	r := rand.New(SEED)
+func TestAppCommandSuite(t *testing.T) {
+	suite.Run(t, &AppTestSuite{
+		CommandSuite: test.NewCommandSuite(app.NewAppCommand()),
+	})
+}
 
+func (s *AppTestSuite) TestRunEmptyFilename() {
+	//-- act
+	s.RunCommand()
+
+	//-- assert
+	s.RequireResultFail("filepath cannot be empty")
+}
+
+func (s *AppTestSuite) TestRunInvalidFilename() {
+	//-- arrange
+	r := rand.New(42)
 	FILE := r.ASCII(10)
 
 	//-- act
-	res := app.Run(FILE, false)
+	s.RunCommand("-i", FILE)
 
-	//-- arrange
-	require.Error(t, res)
-	assert.Contains(t, res.Error(), "error reading input file")
+	//-- assert
+	s.RequireResultFail("error reading input file")
 }

@@ -5,24 +5,23 @@ import (
 	"testing"
 
 	"github.com/binarysoupdev/cryptool/app"
+	"github.com/binarysoupdev/go-commando/test"
 	"github.com/binarysoupdev/tinsel/file"
 	"github.com/binarysoupdev/tinsel/pipe"
 	"github.com/binarysoupdev/tinsel/rand"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
 type EncryptSuite struct {
-	suite.Suite
+	test.CommandSuite[*app.AppCommand]
 	Password       string
 	PlaintextFile  string
 	CiphertextFile string
 }
 
 func (s *EncryptSuite) SetupTest() {
-	const SEED = 42
-	r := rand.New(SEED)
+	r := rand.New(42)
 
 	s.Password = r.ASCII(30)
 	var f *os.File
@@ -37,7 +36,9 @@ func (s *EncryptSuite) SetupTest() {
 //==============================
 
 func TestEncryptSuite(t *testing.T) {
-	suite.Run(t, &EncryptSuite{})
+	suite.Run(t, &EncryptSuite{
+		CommandSuite: test.NewCommandSuite(app.NewAppCommand()),
+	})
 }
 
 func (s *EncryptSuite) TestRunEncryptWrongVerify() {
@@ -49,11 +50,10 @@ func (s *EncryptSuite) TestRunEncryptWrongVerify() {
 	in.Queue("PASSWORD: ", s.Password)
 	in.Queue("PASSWORD: ", s.Password+"x")
 
-	res := app.Run(s.PlaintextFile, false)
+	s.RunCommand("-i", s.PlaintextFile)
 
 	//-- assert
-	require.Error(s.T(), res)
-	assert.Contains(s.T(), res.Error(), "passwords do not match")
+	s.RequireResultFail("passwords do not match")
 }
 
 func (s *EncryptSuite) TestRunEncryptNoRemove() {
@@ -66,10 +66,10 @@ func (s *EncryptSuite) TestRunEncryptNoRemove() {
 	io.Queue("PASSWORD: ", s.Password)
 	io.EndQueue()
 
-	res := app.Run(s.PlaintextFile, false)
+	s.RunCommand("-i", s.PlaintextFile)
 
 	//-- assert
-	require.NoError(s.T(), res)
+	s.RequireResultPass()
 
 	assert.FileExists(s.T(), s.PlaintextFile)
 	assert.FileExists(s.T(), s.CiphertextFile)
@@ -88,10 +88,10 @@ func (s *EncryptSuite) TestRunEncryptWithRemove() {
 	io.Queue("PASSWORD: ", s.Password)
 	io.EndQueue()
 
-	res := app.Run(s.PlaintextFile, true)
+	s.RunCommand("-i", s.PlaintextFile, "-rm")
 
 	//-- assert
-	require.NoError(s.T(), res)
+	s.RequireResultPass()
 
 	assert.NoFileExists(s.T(), s.PlaintextFile)
 	assert.FileExists(s.T(), s.CiphertextFile)

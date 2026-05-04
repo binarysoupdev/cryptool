@@ -2,9 +2,12 @@ module github.com/binarysoupdev/cryptool
 
 go 1.25
 
-require golang.org/x/term v0.39.0
+require (
+	github.com/binarysoupdev/go-commando v1.0.0
+	golang.org/x/term v0.39.0
+)
 
-require github.com/binarysoupdev/tinsel v0.2.0
+replace github.com/binarysoupdev/go-commando v1.0.0 => ../go-commando
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
@@ -14,6 +17,7 @@ require (
 )
 
 require (
-	github.com/binarysoupdev/got-style v1.0.0
+	github.com/binarysoupdev/got-style v1.1.0
+	github.com/binarysoupdev/tinsel v0.2.0
 	golang.org/x/sys v0.40.0 // indirect
 )
