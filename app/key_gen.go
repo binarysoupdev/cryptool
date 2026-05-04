@@ -5,7 +5,6 @@ import (
 	"errors"
 	"os"
 
-	"github.com/binarysoupdev/cryptool/util"
 	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/got-style/style"
 )
@@ -33,7 +32,7 @@ func (cmd KeyGenCommand) Run(args []string) error {
 
 	err := os.WriteFile(*out, key, 0666)
 	if err != nil {
-		return util.ChainError(err, "error writing keyfile")
+		return chainError(err, "error writing keyfile")
 	}
 
 	style.Create.Printf("[+] %s\n", *out)

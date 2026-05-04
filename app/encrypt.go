@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/binarysoupdev/cryptool/crypt"
-	"github.com/binarysoupdev/cryptool/util"
 	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/got-style/style"
 )
@@ -35,7 +34,7 @@ func (cmd EncryptCommand) Run(args []string) error {
 
 	bytes, err := os.ReadFile(*in)
 	if err != nil {
-		return util.ChainError(err, "error reading plaintext file")
+		return chainError(err, "error reading plaintext file")
 	}
 
 	err = encrypt(bytes, *out)
@@ -51,8 +50,8 @@ func (cmd EncryptCommand) Run(args []string) error {
 }
 
 func encrypt(in []byte, out string) error {
-	password := util.PromptPassword("New")
-	verify := util.PromptPassword("Verify")
+	password := promptPassword("New")
+	verify := promptPassword("Verify")
 
 	if verify != password {
 		return errors.New("passwords do not match")
@@ -63,7 +62,7 @@ func encrypt(in []byte, out string) error {
 
 	err := os.WriteFile(out, append(salt, ciphertext...), 0666)
 	if err != nil {
-		return util.ChainError(err, "error writing encrypted file")
+		return chainError(err, "error writing encrypted file")
 	}
 
 	style.Create.Printf("[+] %s\n", out)
