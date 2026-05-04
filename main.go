@@ -15,7 +15,8 @@ func main() {
 	flag.Parse()
 
 	runner := command.NewRunner(
-		app.NewAppCommand(),
+		app.NewEncryptCommand(),
+		app.NewDecryptCommand(),
 	)
 
 	if *ls || len(os.Args) < 2 {
