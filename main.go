@@ -14,9 +14,12 @@ func main() {
 	ls := flag.Bool("ls", false, "list all commands")
 	flag.Parse()
 
+	// TODO: add key file support to encrypt and decrypt
+
 	runner := command.NewRunner(
 		app.NewEncryptCommand(),
 		app.NewDecryptCommand(),
+		app.NewKeyGenCommand(),
 	)
 
 	if *ls || len(os.Args) < 2 {
