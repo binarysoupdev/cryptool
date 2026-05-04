@@ -27,6 +27,8 @@ func (cmd KeyGenCommand) Run(args []string) error {
 		return errors.New("output filepath cannot be empty")
 	}
 
+	//TODO: add length parameter (16, 24, or 32)
+
 	key := make([]byte, 32) //256-bit
 	rand.Read(key)
 

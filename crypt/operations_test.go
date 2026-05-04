@@ -11,17 +11,15 @@ import (
 
 func TestEncryptDecryptCorrectKey(t *testing.T) {
 	//-- arrange
-	const SEED = 42
-	r := rand.New(SEED)
-
+	r := rand.New(42)
 	PASSWORD := r.ASCII(30)
 	PLAINTEXT := r.Bytes(100)
 
 	//-- act
-	c, salt := crypt.New(PASSWORD)
+	c, salt := crypt.NewFromPassword(PASSWORD)
 	ciphertext := c.Encrypt(PLAINTEXT)
 
-	c = crypt.Load(PASSWORD, salt)
+	c = crypt.LoadFromPassword(PASSWORD, salt)
 	res, err := c.Decrypt(ciphertext)
 
 	//-- assert
@@ -31,17 +29,15 @@ func TestEncryptDecryptCorrectKey(t *testing.T) {
 
 func TestEncryptDecryptWrongKey(t *testing.T) {
 	//-- arrange
-	const SEED = 42
-	r := rand.New(SEED)
-
+	r := rand.New(42)
 	PASSWORD := r.ASCII(30)
 	PLAINTEXT := r.Bytes(100)
 
 	//-- act
-	c, salt := crypt.New(PASSWORD)
+	c, salt := crypt.NewFromPassword(PASSWORD)
 	ciphertext := c.Encrypt(PLAINTEXT)
 
-	c = crypt.Load(PASSWORD+"x", salt)
+	c = crypt.LoadFromPassword(PASSWORD+"x", salt)
 	_, err := c.Decrypt(ciphertext)
 
 	//-- assert

@@ -17,6 +17,7 @@ type EncryptSuite struct {
 	Password       string
 	PlaintextFile  string
 	CiphertextFile string
+	Keyfile        string
 }
 
 func (s *EncryptSuite) SetupTest() {
@@ -30,6 +31,10 @@ func (s *EncryptSuite) SetupTest() {
 	f.Close()
 
 	s.CiphertextFile = file.NewPath(s.T(), r.ASCII(10))
+
+	f, s.Keyfile = file.Create(s.T(), r.ASCII(10))
+	f.Write(r.Bytes(32))
+	f.Close()
 }
 
 //==============================
@@ -68,7 +73,7 @@ func (s *EncryptSuite) TestRunInvalidInputFile() {
 	s.RequireResultFail("error reading plaintext file")
 }
 
-func (s *EncryptSuite) TestRunWrongVerify() {
+func (s *EncryptSuite) TestRunPasswordWrongVerify() {
 	//-- arrange
 	in := pipe.OpenStdin(2)
 	defer in.Close()
@@ -83,7 +88,7 @@ func (s *EncryptSuite) TestRunWrongVerify() {
 	s.RequireResultFail("passwords do not match")
 }
 
-func (s *EncryptSuite) TestRunNoRemove() {
+func (s *EncryptSuite) TestRunPasswordCorrectVerify() {
 	//-- arrange
 	io := pipe.OpenStdio(2, 3, false)
 	defer io.Close()
@@ -105,17 +110,42 @@ func (s *EncryptSuite) TestRunNoRemove() {
 	s.Assert().Contains(io.ReadLine(), "[+] "+s.CiphertextFile)
 }
 
-func (s *EncryptSuite) TestRunWithRemove() {
+func (s *EncryptSuite) TestRunInvalidKeyfile() {
 	//-- arrange
-	io := pipe.OpenStdio(2, 4, false)
-	defer io.Close()
+	r := rand.New(42)
+	os.WriteFile(s.Keyfile, r.Bytes(50), 0666)
 
 	//-- act
-	io.Queue("PASSWORD: ", s.Password)
-	io.Queue("PASSWORD: ", s.Password)
-	io.EndQueue()
+	s.RunCommand("-i", s.PlaintextFile, "-o", s.CiphertextFile, "-key", s.Keyfile)
 
-	s.RunCommand("-i", s.PlaintextFile, "-o", s.CiphertextFile, "-rm")
+	//-- assert
+	s.RequireResultFail("invalid key length")
+}
+
+func (s *EncryptSuite) TestRunValidKeyfile() {
+	//-- arrange
+	out := pipe.OpenStdout(1)
+	defer out.Close()
+
+	//-- act
+	s.RunCommand("-i", s.PlaintextFile, "-o", s.CiphertextFile, "-key", s.Keyfile)
+
+	//-- assert
+	s.RequireResultPass()
+
+	s.Assert().FileExists(s.PlaintextFile)
+	s.Assert().FileExists(s.CiphertextFile)
+
+	s.Assert().Contains(out.ReadLine(), "[+] "+s.CiphertextFile)
+}
+
+func (s *EncryptSuite) TestRunWithRemove() {
+	//-- arrange
+	out := pipe.OpenStdout(2)
+	defer out.Close()
+
+	//-- act
+	s.RunCommand("-i", s.PlaintextFile, "-o", s.CiphertextFile, "-key", s.Keyfile, "-rm")
 
 	//-- assert
 	s.RequireResultPass()
@@ -123,7 +153,6 @@ func (s *EncryptSuite) TestRunWithRemove() {
 	s.Assert().NoFileExists(s.PlaintextFile)
 	s.Assert().FileExists(s.CiphertextFile)
 
-	io.SkipLines(2)
-	s.Assert().Contains(io.ReadLine(), "[+] "+s.CiphertextFile)
-	s.Assert().Contains(io.ReadLine(), "[-] "+s.PlaintextFile)
+	s.Assert().Contains(out.ReadLine(), "[+] "+s.CiphertextFile)
+	s.Assert().Contains(out.ReadLine(), "[-] "+s.PlaintextFile)
 }

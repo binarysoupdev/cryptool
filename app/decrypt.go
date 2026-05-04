@@ -22,6 +22,7 @@ func NewDecryptCommand() *DecryptCommand {
 func (cmd DecryptCommand) Run(args []string) error {
 	in := cmd.Flags.String("i", "", "the ciphertext input file")
 	out := cmd.Flags.String("o", "", "the plaintext output file")
+	key := cmd.Flags.String("key", "", "decrypt using a keyfile (16, 24, or 32 bytes)")
 	rm := cmd.Flags.Bool("rm", false, "remove the ciphertext file")
 	cmd.Flags.Parse(args)
 
@@ -37,7 +38,11 @@ func (cmd DecryptCommand) Run(args []string) error {
 		return chainError(err, "error reading ciphertext file")
 	}
 
-	err = decrypt(bytes, *out)
+	if *key == "" {
+		err = cmd.decryptFromPassword(bytes, *out)
+	} else {
+		err = cmd.decryptFromKeyfile(*key, bytes, *out)
+	}
 	if err != nil {
 		return err
 	}
@@ -49,19 +54,42 @@ func (cmd DecryptCommand) Run(args []string) error {
 	return nil
 }
 
-func decrypt(in []byte, out string) error {
+func (cmd DecryptCommand) decryptFromPassword(in []byte, out string) error {
 	password := promptPassword("Enter")
 
-	plaintext, err := crypt.Load(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
+	plaintext, err := crypt.LoadFromPassword(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
 	if err != nil {
 		return chainError(err, "error decrypting ciphertext")
 	}
 
-	err = os.WriteFile(out, plaintext, 0666)
+	return cmd.writePlaintextFile(plaintext, out)
+}
+
+func (cmd DecryptCommand) decryptFromKeyfile(key string, in []byte, out string) error {
+	bytes, err := os.ReadFile(key)
+	if err != nil {
+		return chainError(err, "error reading keyfile")
+	}
+
+	c, err := crypt.New(bytes)
+	if err != nil {
+		return err
+	}
+
+	plaintext, err := c.Decrypt(in)
+	if err != nil {
+		return chainError(err, "error decrypting ciphertext")
+	}
+
+	return cmd.writePlaintextFile(plaintext, out)
+}
+
+func (DecryptCommand) writePlaintextFile(bytes []byte, out string) error {
+	err := os.WriteFile(out, bytes, 0666)
 	if err != nil {
 		return chainError(err, "error writing decrypted file")
 	}
 
-	style.Create.PrintF("[+] %s\n", out)
+	style.Create.Printf("[+] %s\n", out)
 	return nil
 }

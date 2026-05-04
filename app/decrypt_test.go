@@ -15,9 +15,11 @@ import (
 
 type DecryptSuite struct {
 	test.CommandSuite[*app.DecryptCommand]
-	Password       string
-	CiphertextFile string
-	PlaintextFile  string
+	Password               string
+	PasswordCiphertextFile string
+	PlaintextFile          string
+	Keyfile                string
+	KeyCiphertextFile      string
 }
 
 func (s *DecryptSuite) SetupTest() {
@@ -26,15 +28,23 @@ func (s *DecryptSuite) SetupTest() {
 	s.Password = r.ASCII(30)
 	var f *os.File
 
-	c, salt := crypt.New(s.Password)
-	ciphertext := c.Encrypt(r.Bytes(50))
-
-	f, s.CiphertextFile = file.Create(s.T(), r.ASCII(10))
+	c, salt := crypt.NewFromPassword(s.Password)
+	f, s.PasswordCiphertextFile = file.Create(s.T(), r.ASCII(10))
 	f.Write(salt)
-	f.Write(ciphertext)
+	f.Write(c.Encrypt(r.Bytes(50)))
 	f.Close()
 
 	s.PlaintextFile = file.NewPath(s.T(), r.ASCII(10))
+
+	key := r.Bytes(32)
+	f, s.Keyfile = file.Create(s.T(), r.ASCII(10))
+	f.Write(key)
+	f.Close()
+
+	c, _ = crypt.New(key)
+	f, s.KeyCiphertextFile = file.Create(s.T(), r.ASCII(10))
+	f.Write(c.Encrypt(r.Bytes(50)))
+	f.Close()
 }
 
 //==============================
@@ -55,7 +65,7 @@ func (s *DecryptSuite) TestRunEmptyInputFilepath() {
 
 func (s *DecryptSuite) TestRunEmptyOutputFilepath() {
 	//-- act
-	s.RunCommand("-i", s.CiphertextFile)
+	s.RunCommand("-i", s.PasswordCiphertextFile)
 
 	//-- assert
 	s.RequireResultFail("output filepath cannot be empty")
@@ -80,13 +90,13 @@ func (s *DecryptSuite) TestRunWrongPassword() {
 
 	//-- act
 	io.Queue("PASSWORD: ", s.Password+"x")
-	s.RunCommand("-i", s.CiphertextFile, "-o", s.PlaintextFile)
+	s.RunCommand("-i", s.PasswordCiphertextFile, "-o", s.PlaintextFile)
 
 	//-- assert
 	s.RequireResultFail("error decrypting ciphertext")
 }
 
-func (s *DecryptSuite) TestRunNoRemove() {
+func (s *DecryptSuite) TestRunCorrectPassword() {
 	//-- arrange
 	io := pipe.OpenStdio(1, 2, false)
 	defer io.Close()
@@ -95,36 +105,61 @@ func (s *DecryptSuite) TestRunNoRemove() {
 	io.Queue("PASSWORD: ", s.Password)
 	io.EndQueue()
 
-	s.RunCommand("-i", s.CiphertextFile, "-o", s.PlaintextFile)
+	s.RunCommand("-i", s.PasswordCiphertextFile, "-o", s.PlaintextFile)
 
 	//-- assert
 	s.RequireResultPass()
 
-	s.Assert().FileExists(s.CiphertextFile)
+	s.Assert().FileExists(s.PasswordCiphertextFile)
 	s.Assert().FileExists(s.PlaintextFile)
 
 	s.Assert().Equal("Enter PASSWORD: ", io.ReadLine())
 	s.Assert().Contains(io.ReadLine(), "[+] "+s.PlaintextFile)
 }
 
-func (s *DecryptSuite) TestRunWithRemove() {
+func (s *DecryptSuite) TestRunInvalidKeyfile() {
 	//-- arrange
-	io := pipe.OpenStdio(1, 3, false)
-	defer io.Close()
+	r := rand.New(42)
+	os.WriteFile(s.Keyfile, r.Bytes(50), 0666)
 
 	//-- act
-	io.Queue("PASSWORD: ", s.Password)
-	io.EndQueue()
+	s.RunCommand("-i", s.KeyCiphertextFile, "-o", s.PlaintextFile, "-key", s.Keyfile)
 
-	s.RunCommand("-i", s.CiphertextFile, "-o", s.PlaintextFile, "-rm")
+	//-- assert
+	s.RequireResultFail("invalid key length")
+}
+
+func (s *DecryptSuite) TestRunValidKeyfile() {
+	//-- arrange
+	out := pipe.OpenStdout(1)
+	defer out.Close()
+
+	//-- act
+	s.RunCommand("-i", s.KeyCiphertextFile, "-o", s.PlaintextFile, "-key", s.Keyfile)
 
 	//-- assert
 	s.RequireResultPass()
 
-	s.Assert().NoFileExists(s.CiphertextFile)
+	s.Assert().FileExists(s.KeyCiphertextFile)
 	s.Assert().FileExists(s.PlaintextFile)
 
-	s.Assert().Equal("Enter PASSWORD: ", io.ReadLine())
-	s.Assert().Contains(io.ReadLine(), "[+] "+s.PlaintextFile)
-	s.Assert().Contains(io.ReadLine(), "[-] "+s.CiphertextFile)
+	s.Assert().Contains(out.ReadLine(), "[+] "+s.PlaintextFile)
+}
+
+func (s *DecryptSuite) TestRunWithRemove() {
+	//-- arrange
+	out := pipe.OpenStdout(2)
+	defer out.Close()
+
+	//-- act
+	s.RunCommand("-i", s.KeyCiphertextFile, "-o", s.PlaintextFile, "-key", s.Keyfile, "-rm")
+
+	//-- assert
+	s.RequireResultPass()
+
+	s.Assert().NoFileExists(s.KeyCiphertextFile)
+	s.Assert().FileExists(s.PlaintextFile)
+
+	s.Assert().Contains(out.ReadLine(), "[+] "+s.PlaintextFile)
+	s.Assert().Contains(out.ReadLine(), "[-] "+s.KeyCiphertextFile)
 }

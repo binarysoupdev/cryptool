@@ -14,10 +14,5 @@ func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
 
 // Decrypt the ciphertext and return the resulting plaintext. Also returns any decryption errors.
 func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
-	plaintext, err := c.cipher.Open(nil, ct.Nonce(), ct.Text(), nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return plaintext, nil
+	return c.cipher.Open(nil, ct.Nonce(), ct.Text(), nil)
 }
