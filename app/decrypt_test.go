@@ -10,7 +10,6 @@ import (
 	"github.com/binarysoupdev/tinsel/file"
 	"github.com/binarysoupdev/tinsel/pipe"
 	"github.com/binarysoupdev/tinsel/rand"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -101,11 +100,11 @@ func (s *DecryptSuite) TestRunNoRemove() {
 	//-- assert
 	s.RequireResultPass()
 
-	assert.FileExists(s.T(), s.CiphertextFile)
-	assert.FileExists(s.T(), s.PlaintextFile)
+	s.Assert().FileExists(s.CiphertextFile)
+	s.Assert().FileExists(s.PlaintextFile)
 
-	assert.Equal(s.T(), "Enter PASSWORD: ", io.ReadLine())
-	assert.Contains(s.T(), io.ReadLine(), "[+] "+s.PlaintextFile)
+	s.Assert().Equal("Enter PASSWORD: ", io.ReadLine())
+	s.Assert().Contains(io.ReadLine(), "[+] "+s.PlaintextFile)
 }
 
 func (s *DecryptSuite) TestRunWithRemove() {
@@ -122,10 +121,10 @@ func (s *DecryptSuite) TestRunWithRemove() {
 	//-- assert
 	s.RequireResultPass()
 
-	assert.NoFileExists(s.T(), s.CiphertextFile)
-	assert.FileExists(s.T(), s.PlaintextFile)
+	s.Assert().NoFileExists(s.CiphertextFile)
+	s.Assert().FileExists(s.PlaintextFile)
 
-	assert.Equal(s.T(), "Enter PASSWORD: ", io.ReadLine())
-	assert.Contains(s.T(), io.ReadLine(), "[+] "+s.PlaintextFile)
-	assert.Contains(s.T(), io.ReadLine(), "[-] "+s.CiphertextFile)
+	s.Assert().Equal("Enter PASSWORD: ", io.ReadLine())
+	s.Assert().Contains(io.ReadLine(), "[+] "+s.PlaintextFile)
+	s.Assert().Contains(io.ReadLine(), "[-] "+s.CiphertextFile)
 }
