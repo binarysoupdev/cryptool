@@ -1,6 +1,7 @@
 package app_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -29,6 +30,33 @@ func (s *KeyGenSuite) TestRunEmptyOutputFilepath() {
 	s.RequireResultFail("output filepath cannot be empty")
 }
 
+func (s *KeyGenSuite) TestRunInvalidKeyLength() {
+	//-- arrange
+	r := rand.New(42)
+	OUT := file.NewPath(s.T(), r.ASCII(10))
+
+	//-- act
+	s.RunCommand("-o", OUT, "-l", "50")
+
+	//-- assert
+	s.RequireResultFail("invalid key length")
+}
+
+func (s *KeyGenSuite) TestValidKeyLengths() {
+	//-- arrange
+	r := rand.New(42)
+	OUT := file.NewPath(s.T(), r.ASCII(10))
+	LENGTHS := []int{16, 24, 32}
+
+	for _, length := range LENGTHS {
+		//-- act
+		s.RunCommand("-o", OUT, "-l", fmt.Sprintf("%d", length))
+
+		//-- assert
+		s.RequireResultPass()
+	}
+}
+
 func (s *KeyGenSuite) TestRunCreateKeyFile() {
 	//-- arrange
 	r := rand.New(42)
@@ -44,5 +72,5 @@ func (s *KeyGenSuite) TestRunCreateKeyFile() {
 	bytes, err := os.ReadFile(OUT)
 	s.Require().NoError(err)
 
-	s.Assert().Len(bytes, 32) //256-bit
+	s.Assert().Len(bytes, 32) //default 32 bytes
 }
