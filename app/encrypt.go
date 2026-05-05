@@ -9,16 +9,20 @@ import (
 	"github.com/binarysoupdev/got-style/style"
 )
 
+// A command for encrypting plaintext files.
+// Supports both password and file-based keys.
 type EncryptCommand struct {
 	command.FlagCommandBase
 }
 
+// Create a new Encrypt command.
 func NewEncryptCommand() *EncryptCommand {
 	return &EncryptCommand{
 		FlagCommandBase: command.NewFlagCommandBase("encrypt", "encrypt the given the plaintext file"),
 	}
 }
 
+// Run the command. See usage for details.
 func (cmd EncryptCommand) Run(args []string) error {
 	in := cmd.Flags.String("i", "", "the plaintext input file")
 	out := cmd.Flags.String("o", "", "the ciphertext output")

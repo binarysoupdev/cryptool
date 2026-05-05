@@ -9,16 +9,20 @@ import (
 	"github.com/binarysoupdev/got-style/style"
 )
 
+// A command for decrypting ciphertext files.
+// Supports both password and file-based keys.
 type DecryptCommand struct {
 	command.FlagCommandBase
 }
 
+// Create a new Decrypt command.
 func NewDecryptCommand() *DecryptCommand {
 	return &DecryptCommand{
 		FlagCommandBase: command.NewFlagCommandBase("decrypt", "decrypt the given the ciphertext file"),
 	}
 }
 
+// Run the command. See usage for details.
 func (cmd DecryptCommand) Run(args []string) error {
 	in := cmd.Flags.String("i", "", "the ciphertext input file")
 	out := cmd.Flags.String("o", "", "the plaintext output file")

@@ -15,7 +15,6 @@ const (
 	SALT_SIZE         = 16
 )
 
-// The Crypt object encapsulates the cipher used for encryption operations.
 type Crypt struct {
 	cipher cipher.AEAD
 }
