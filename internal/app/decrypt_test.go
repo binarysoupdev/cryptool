@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/binarysoupdev/cryptool/app"
 	"github.com/binarysoupdev/cryptool/crypt"
+	"github.com/binarysoupdev/cryptool/internal/app"
 	"github.com/binarysoupdev/go-commando/test"
 	"github.com/binarysoupdev/tinsel/file"
 	"github.com/binarysoupdev/tinsel/pipe"

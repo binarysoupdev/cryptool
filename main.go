@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/binarysoupdev/cryptool/app"
+	"github.com/binarysoupdev/cryptool/internal/app"
 	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/got-style/style"
 )

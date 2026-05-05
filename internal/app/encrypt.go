@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/binarysoupdev/cryptool/crypt"
+	"github.com/binarysoupdev/cryptool/internal/util"
 	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/got-style/style"
 )
@@ -39,7 +40,7 @@ func (cmd EncryptCommand) Run(args []string) error {
 
 	bytes, err := os.ReadFile(*in)
 	if err != nil {
-		return chainError(err, "error reading plaintext file")
+		return util.ChainError(err, "error reading plaintext file")
 	}
 
 	if *key == "" {
@@ -59,8 +60,8 @@ func (cmd EncryptCommand) Run(args []string) error {
 }
 
 func (cmd EncryptCommand) encryptFromPassword(in []byte, out string) error {
-	password := promptPassword("New")
-	verify := promptPassword("Verify")
+	password := util.PromptPassword("New")
+	verify := util.PromptPassword("Verify")
 
 	if verify != password {
 		return errors.New("passwords do not match")
@@ -75,7 +76,7 @@ func (cmd EncryptCommand) encryptFromPassword(in []byte, out string) error {
 func (cmd EncryptCommand) encryptFromKeyfile(key string, in []byte, out string) error {
 	bytes, err := os.ReadFile(key)
 	if err != nil {
-		return chainError(err, "error reading keyfile")
+		return util.ChainError(err, "error reading keyfile")
 	}
 
 	c, err := crypt.New(bytes)
@@ -89,7 +90,7 @@ func (cmd EncryptCommand) encryptFromKeyfile(key string, in []byte, out string) 
 func (EncryptCommand) writeCiphertextFile(bytes []byte, out string) error {
 	err := os.WriteFile(out, bytes, 0666)
 	if err != nil {
-		return chainError(err, "error writing encrypted file")
+		return util.ChainError(err, "error writing encrypted file")
 	}
 
 	style.Create.Printf("[+] %s\n", out)

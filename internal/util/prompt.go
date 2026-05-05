@@ -1,4 +1,4 @@
-package app
+package util
 
 import (
 	"bufio"
@@ -8,7 +8,8 @@ import (
 	"golang.org/x/term"
 )
 
-func promptPassword(prompt string) string {
+// Prompt a password from the stdin. If stdin is a terminal, echo is temporarily disabled.
+func PromptPassword(prompt string) string {
 	fmt.Printf("%s PASSWORD: ", prompt)
 
 	password, err := term.ReadPassword(int(os.Stdin.Fd()))
