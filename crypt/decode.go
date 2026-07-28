@@ -15,7 +15,7 @@ func Decode[T any](c Crypt, r io.Reader) (T, error) {
 	return Unmarshal[T](c, ciphertext)
 }
 
-func Unmarshal[T any](c Crypt, ciphertext Ciphertext) (T, error) {
+func Unmarshal[T any](c Crypt, ciphertext []byte) (T, error) {
 	var obj T
 
 	plaintext, err := c.Decrypt(ciphertext)
