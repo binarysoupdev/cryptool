@@ -2,10 +2,13 @@ package crypt
 
 import (
 	"crypto/rand"
+	"fmt"
 )
 
+const NONCE_SIZE = 12 // AES-GCM
+
 // Encrypt the plaintext and return the resulting ciphertext.
-func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
+func (c Crypt) Encrypt(plaintext []byte) []byte {
 	nonce := make([]byte, NONCE_SIZE)
 	rand.Read(nonce)
 
@@ -13,6 +16,10 @@ func (c Crypt) Encrypt(plaintext []byte) Ciphertext {
 }
 
 // Decrypt the ciphertext and return the resulting plaintext. Also returns any decryption errors.
-func (c Crypt) Decrypt(ct Ciphertext) ([]byte, error) {
-	return c.cipher.Open(nil, ct.Nonce(), ct.Text(), nil)
+func (c Crypt) Decrypt(ciphertext []byte) ([]byte, error) {
+	if len(ciphertext) < NONCE_SIZE+1 {
+		return nil, fmt.Errorf("invalid ciphertext length: %d", len(ciphertext))
+	}
+
+	return c.cipher.Open(nil, ciphertext[:NONCE_SIZE], ciphertext[NONCE_SIZE:], nil)
 }
