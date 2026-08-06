@@ -5,17 +5,16 @@ import (
 	"io"
 
 	"github.com/binarysoupdev/go-extensions/errors"
-	io_exts "github.com/binarysoupdev/go-extensions/io"
 )
 
 func (c Conn) ReadMessage() ([]byte, error) {
-	header, err := io_exts.ReadBytes(c.Conn, 4)
-	if err != nil {
+	header := make([]byte, 4)
+	if _, err := io.ReadFull(c.Conn, header); err != nil {
 		return nil, errors.Chain(err, "error reading header")
 	}
 
-	msg, err := io_exts.ReadBytes(c.Conn, int(binary.BigEndian.Uint32(header)))
-	if err != nil {
+	msg := make([]byte, int(binary.BigEndian.Uint32(header)))
+	if _, err := io.ReadFull(c.Conn, msg); err != nil {
 		return nil, errors.Chain(err, "error reading message")
 	}
 
