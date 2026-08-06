@@ -6,12 +6,12 @@ import (
 	"github.com/binarysoupdev/go-extensions/errors"
 )
 
-func (c Connection) WriteMessage(msg []byte) error {
+func (c Conn) WriteMessage(msg []byte) error {
 	_, err := c.Write(msg)
 	return err
 }
 
-func (c Connection) Write(b []byte) (int, error) {
+func (c Conn) Write(b []byte) (int, error) {
 	if !c.crypt.IsNil() {
 		b = c.crypt.Encrypt(b)
 	}

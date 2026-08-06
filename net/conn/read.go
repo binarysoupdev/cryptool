@@ -8,7 +8,7 @@ import (
 	io_exts "github.com/binarysoupdev/go-extensions/io"
 )
 
-func (c Connection) ReadMessage() ([]byte, error) {
+func (c Conn) ReadMessage() ([]byte, error) {
 	header, err := io_exts.ReadBytes(c.Conn, 4)
 	if err != nil {
 		return nil, errors.Chain(err, "error reading header")
@@ -31,7 +31,7 @@ func (c Connection) ReadMessage() ([]byte, error) {
 	return plaintext, nil
 }
 
-func (c *Connection) Read(b []byte) (int, error) {
+func (c *Conn) Read(b []byte) (int, error) {
 	var err error
 
 	if len(c.msgBuffer) == 0 {

@@ -6,18 +6,18 @@ import (
 	"github.com/binarysoupdev/cryptool/crypt"
 )
 
-type Connection struct {
+type Conn struct {
 	net.Conn
 	crypt     crypt.Crypt
 	msgBuffer []byte
 }
 
-func NewConnection(conn net.Conn) *Connection {
-	return &Connection{
+func NewConnection(conn net.Conn) *Conn {
+	return &Conn{
 		Conn: conn,
 	}
 }
 
-func (c Connection) IsEncrypted() bool {
+func (c Conn) IsEncrypted() bool {
 	return !c.crypt.IsNil()
 }
