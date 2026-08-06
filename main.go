@@ -15,9 +15,6 @@ func main() {
 	flag.Parse()
 
 	runner := command.NewRunner(
-		app.NewKeyGenCommand(),
-		app.NewEncryptCommand(),
-		app.NewDecryptCommand(),
 		app.NewHostCommand(),
 		app.NewClientCommand(),
 	)
