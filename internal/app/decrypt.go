@@ -1,29 +1,25 @@
 package app
 
 import (
-	"errors"
 	"os"
 
 	"github.com/binarysoupdev/cryptool/crypt"
-	"github.com/binarysoupdev/cryptool/internal/util"
+	"github.com/binarysoupdev/cryptool/internal/prompt"
 	"github.com/binarysoupdev/go-commando/command"
+	"github.com/binarysoupdev/go-extensions/errors"
 	"github.com/binarysoupdev/got-style/style"
 )
 
-// A command for decrypting ciphertext files.
-// Supports both password and file-based keys.
 type DecryptCommand struct {
 	command.FlagCommandBase
 }
 
-// Create a new Decrypt command.
 func NewDecryptCommand() *DecryptCommand {
 	return &DecryptCommand{
 		FlagCommandBase: command.NewFlagCommandBase("decrypt", "decrypt the given the ciphertext file"),
 	}
 }
 
-// Run the command. See usage for details.
 func (cmd DecryptCommand) Run(args []string) error {
 	in := cmd.Flags.String("i", "", "the ciphertext input file")
 	out := cmd.Flags.String("o", "", "the plaintext output file")
@@ -40,7 +36,7 @@ func (cmd DecryptCommand) Run(args []string) error {
 
 	bytes, err := os.ReadFile(*in)
 	if err != nil {
-		return util.ChainError(err, "error reading ciphertext file")
+		return errors.Chain(err, "error reading ciphertext file")
 	}
 
 	if *key == "" {
@@ -60,11 +56,11 @@ func (cmd DecryptCommand) Run(args []string) error {
 }
 
 func (cmd DecryptCommand) decryptFromPassword(in []byte, out string) error {
-	password := util.PromptPassword("Enter")
+	password := prompt.Password("Enter")
 
 	plaintext, err := crypt.LoadFromPassword(password, in[:crypt.SALT_SIZE]).Decrypt(in[crypt.SALT_SIZE:])
 	if err != nil {
-		return util.ChainError(err, "error decrypting ciphertext")
+		return errors.Chain(err, "error decrypting ciphertext")
 	}
 
 	return cmd.writePlaintextFile(plaintext, out)
@@ -73,7 +69,7 @@ func (cmd DecryptCommand) decryptFromPassword(in []byte, out string) error {
 func (cmd DecryptCommand) decryptFromKeyfile(key string, in []byte, out string) error {
 	bytes, err := os.ReadFile(key)
 	if err != nil {
-		return util.ChainError(err, "error reading keyfile")
+		return errors.Chain(err, "error reading keyfile")
 	}
 
 	c, err := crypt.New(bytes)
@@ -83,7 +79,7 @@ func (cmd DecryptCommand) decryptFromKeyfile(key string, in []byte, out string) 
 
 	plaintext, err := c.Decrypt(in)
 	if err != nil {
-		return util.ChainError(err, "error decrypting ciphertext")
+		return errors.Chain(err, "error decrypting ciphertext")
 	}
 
 	return cmd.writePlaintextFile(plaintext, out)
@@ -92,7 +88,7 @@ func (cmd DecryptCommand) decryptFromKeyfile(key string, in []byte, out string) 
 func (DecryptCommand) writePlaintextFile(bytes []byte, out string) error {
 	err := os.WriteFile(out, bytes, 0666)
 	if err != nil {
-		return util.ChainError(err, "error writing decrypted file")
+		return errors.Chain(err, "error writing decrypted file")
 	}
 
 	style.Create.Printf("[+] %s\n", out)

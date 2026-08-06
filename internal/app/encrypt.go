@@ -1,29 +1,25 @@
 package app
 
 import (
-	"errors"
 	"os"
 
 	"github.com/binarysoupdev/cryptool/crypt"
-	"github.com/binarysoupdev/cryptool/internal/util"
+	"github.com/binarysoupdev/cryptool/internal/prompt"
 	"github.com/binarysoupdev/go-commando/command"
+	"github.com/binarysoupdev/go-extensions/errors"
 	"github.com/binarysoupdev/got-style/style"
 )
 
-// A command for encrypting plaintext files.
-// Supports both password and file-based keys.
 type EncryptCommand struct {
 	command.FlagCommandBase
 }
 
-// Create a new Encrypt command.
 func NewEncryptCommand() *EncryptCommand {
 	return &EncryptCommand{
 		FlagCommandBase: command.NewFlagCommandBase("encrypt", "encrypt the given the plaintext file"),
 	}
 }
 
-// Run the command. See usage for details.
 func (cmd EncryptCommand) Run(args []string) error {
 	in := cmd.Flags.String("i", "", "the plaintext input file")
 	out := cmd.Flags.String("o", "", "the ciphertext output")
@@ -40,7 +36,7 @@ func (cmd EncryptCommand) Run(args []string) error {
 
 	bytes, err := os.ReadFile(*in)
 	if err != nil {
-		return util.ChainError(err, "error reading plaintext file")
+		return errors.Chain(err, "error reading plaintext file")
 	}
 
 	if *key == "" {
@@ -60,8 +56,8 @@ func (cmd EncryptCommand) Run(args []string) error {
 }
 
 func (cmd EncryptCommand) encryptFromPassword(in []byte, out string) error {
-	password := util.PromptPassword("New")
-	verify := util.PromptPassword("Verify")
+	password := prompt.Password("New")
+	verify := prompt.Password("Verify")
 
 	if verify != password {
 		return errors.New("passwords do not match")
@@ -76,7 +72,7 @@ func (cmd EncryptCommand) encryptFromPassword(in []byte, out string) error {
 func (cmd EncryptCommand) encryptFromKeyfile(key string, in []byte, out string) error {
 	bytes, err := os.ReadFile(key)
 	if err != nil {
-		return util.ChainError(err, "error reading keyfile")
+		return errors.Chain(err, "error reading keyfile")
 	}
 
 	c, err := crypt.New(bytes)
@@ -90,7 +86,7 @@ func (cmd EncryptCommand) encryptFromKeyfile(key string, in []byte, out string) 
 func (EncryptCommand) writeCiphertextFile(bytes []byte, out string) error {
 	err := os.WriteFile(out, bytes, 0666)
 	if err != nil {
-		return util.ChainError(err, "error writing encrypted file")
+		return errors.Chain(err, "error writing encrypted file")
 	}
 
 	style.Create.Printf("[+] %s\n", out)
