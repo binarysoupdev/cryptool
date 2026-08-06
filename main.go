@@ -18,6 +18,8 @@ func main() {
 		app.NewKeyGenCommand(),
 		app.NewEncryptCommand(),
 		app.NewDecryptCommand(),
+		app.NewHostCommand(),
+		app.NewClientCommand(),
 	)
 
 	if *ls || len(os.Args) < 2 {

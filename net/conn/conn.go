@@ -12,7 +12,7 @@ type Conn struct {
 	msgBuffer []byte
 }
 
-func NewConnection(conn net.Conn) *Conn {
+func New(conn net.Conn) *Conn {
 	return &Conn{
 		Conn: conn,
 	}
