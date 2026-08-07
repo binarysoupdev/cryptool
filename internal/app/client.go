@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/binarysoupdev/cryptool/net/client"
 	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/go-extensions/errors"
@@ -30,7 +32,13 @@ func (cmd ClientCommand) Run(args []string) error {
 		return errors.Chain(err, "error connecting client")
 	}
 	defer client.Close()
+	style.Create.Printf("Connected to: %s\n", client.RemoteAddr())
 
-	style.Info.Printf("Connected to: %s\n", client.RemoteAddr())
+	err = client.SendMessage([]byte("Hello Host!"))
+	if err != nil {
+		return errors.Chain(err, "error sending message")
+	}
+	fmt.Println("Sent message.")
+
 	return nil
 }

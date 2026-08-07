@@ -6,7 +6,7 @@ import (
 	"github.com/binarysoupdev/go-extensions/errors"
 )
 
-func (c Conn) WriteMessage(msg []byte) error {
+func (c Conn) SendMessage(msg []byte) error {
 	_, err := c.Write(msg)
 	return err
 }

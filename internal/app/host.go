@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/binarysoupdev/cryptool/net/host"
 	"github.com/binarysoupdev/go-commando/command"
 	"github.com/binarysoupdev/go-extensions/errors"
@@ -33,7 +35,13 @@ func (cmd HostCommand) Run(args []string) error {
 	if err != nil {
 		return errors.Chain(err, "error accepting connection")
 	}
-
 	style.Create.Printf("Accepted Client: %s\n", c.RemoteAddr())
+
+	msg, err := c.ReadMessage()
+	if err != nil {
+		return errors.Chain(err, "error reading message")
+	}
+	fmt.Printf("Received message: %s\n", string(msg))
+
 	return nil
 }
