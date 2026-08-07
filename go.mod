@@ -11,6 +11,8 @@ require (
 	golang.org/x/term v0.39.0
 )
 
+replace github.com/binarysoupdev/go-extensions => ../go-extensions
+
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

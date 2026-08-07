@@ -11,6 +11,6 @@ const (
 )
 
 type Handler interface {
-	Log(status int, msg string)
-	Handle(c *conn.Conn) error
+	Log(status int, clientID int, v any)
+	Handle(clientID int, c *conn.Conn) error
 }

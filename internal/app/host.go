@@ -31,7 +31,7 @@ func (cmd HostCommand) Run(args []string) error {
 	defer host.Close()
 
 	style.BoldInfo.Printf("Listening at: %s\n", host.Addr())
-	host.Listen(handler{})
+	host.Listen(handler{}, 1)
 
 	return nil
 }
@@ -40,19 +40,18 @@ func (cmd HostCommand) Run(args []string) error {
 
 type handler struct{}
 
-func (handler) Log(status int, msg string) {
+func (handler) Log(status int, clientID int, v any) {
 	switch status {
 	case host.S_ERROR:
-		style.Error.Printf("[X] %s\n", msg)
+		style.Error.Printf("[ID:%d] [X] %v\n", clientID, v)
 	case host.S_ACCEPT_CLIENT:
-		style.Create.Printf("[+] %s\n", msg)
+		style.Create.Printf("[ID:%d] [+] %v\n", clientID, v)
 	case host.S_LOST_CLIENT:
-		style.Delete.Printf("[-] %s\n", msg)
+		style.Delete.Printf("[ID:%d] [-] %v\n", clientID, v)
 	}
-
 }
 
-func (handler) Handle(c *conn.Conn) error {
+func (handler) Handle(_ int, c *conn.Conn) error {
 	msg, err := c.ReadMessage()
 	if err != nil {
 		return errors.Chain(err, "error reading message")

@@ -1,7 +1,9 @@
 package app
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 
 	"github.com/binarysoupdev/cryptool/net/client"
 	"github.com/binarysoupdev/go-commando/command"
@@ -34,11 +36,19 @@ func (cmd ClientCommand) Run(args []string) error {
 	defer client.Close()
 	style.Create.Printf("Connected to: %s\n", client.RemoteAddr())
 
+	// wait for input
+	bufio.NewReader(os.Stdin).ReadString('\n')
+
 	err = client.SendMessage([]byte("Hello Host!"))
 	if err != nil {
 		return errors.Chain(err, "error sending message")
 	}
 	fmt.Println("Sent message.")
+
+	_, err = client.ReadMessage()
+	if err != nil {
+		return errors.Chain(err, "error receiving response")
+	}
 
 	return nil
 }
