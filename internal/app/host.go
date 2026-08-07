@@ -30,34 +30,29 @@ func (cmd HostCommand) Run(args []string) error {
 	}
 	defer host.Close()
 
-	cmd.acceptLoop(host)
+	style.BoldInfo.Printf("Listening at: %s\n", host.Addr())
+	host.Listen(handler{})
+
 	return nil
 }
 
-func (cmd HostCommand) acceptLoop(h host.Host) {
-	style.BoldInfo.Printf("Listening at: %s\n", h.Addr())
-	for {
-		err := cmd.acceptClient(h)
-		if err != nil {
-			cmd.logError(err)
-		}
-	}
-}
+//====================================================
 
-func (cmd HostCommand) acceptClient(h host.Host) error {
-	c, err := h.Accept()
-	if err != nil {
-		return errors.Chain(err, "error accepting connection")
+type handler struct{}
+
+func (handler) Log(status int, msg string) {
+	switch status {
+	case host.S_ERROR:
+		style.Error.Printf("[X] %s\n", msg)
+	case host.S_ACCEPT_CLIENT:
+		style.Create.Printf("[+] %s\n", msg)
+	case host.S_LOST_CLIENT:
+		style.Delete.Printf("[-] %s\n", msg)
 	}
 
-	style.Create.Printf("Accepted Client: %s\n", c.RemoteAddr())
-	err = cmd.accept(c)
-	style.Delete.Printf("Ended Client: %s\n", c.RemoteAddr())
-
-	return err
 }
 
-func (cmd HostCommand) accept(c *conn.Conn) error {
+func (handler) Handle(c *conn.Conn) error {
 	msg, err := c.ReadMessage()
 	if err != nil {
 		return errors.Chain(err, "error reading message")
@@ -65,8 +60,4 @@ func (cmd HostCommand) accept(c *conn.Conn) error {
 
 	fmt.Printf("Received message: %s\n", string(msg))
 	return nil
-}
-
-func (cmd HostCommand) logError(err error) {
-	fmt.Printf("%s %s\n", style.BoldError.Sprint("[X] "), err)
 }
