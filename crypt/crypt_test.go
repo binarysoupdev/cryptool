@@ -4,15 +4,13 @@ import (
 	"testing"
 
 	"github.com/binarysoupdev/cryptool/crypt"
-	"github.com/binarysoupdev/tinsel/rand"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewInvalidKeySize(t *testing.T) {
 	//-- arrange
-	r := rand.New(42)
-	KEY := r.Bytes(50)
+	KEY := make([]byte, 50)
 
 	//-- act
 	_, res := crypt.New(KEY)
@@ -24,8 +22,7 @@ func TestNewInvalidKeySize(t *testing.T) {
 
 func TestNewValidKeySize(t *testing.T) {
 	//-- arrange
-	r := rand.New(42)
-	KEYS := [][]byte{r.Bytes(16), r.Bytes(24), r.Bytes(32)}
+	KEYS := [][]byte{make([]byte, 16), make([]byte, 24), make([]byte, 32)}
 
 	for _, key := range KEYS {
 		//-- act
