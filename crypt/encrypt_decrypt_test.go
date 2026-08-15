@@ -4,16 +4,14 @@ import (
 	"testing"
 
 	"github.com/binarysoupdev/cryptool/crypt"
-	"github.com/binarysoupdev/tinsel/rand"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestEncryptDecryptCorrectKey(t *testing.T) {
 	//-- arrange
-	r := rand.New(42)
-	PASSWORD := r.ASCII(30)
-	PLAINTEXT := r.Bytes(100)
+	const PASSWORD = "Password123!"
+	PLAINTEXT := []byte("plaintext")
 
 	//-- act
 	c, salt := crypt.NewFromPassword(PASSWORD)
@@ -29,9 +27,8 @@ func TestEncryptDecryptCorrectKey(t *testing.T) {
 
 func TestEncryptDecryptWrongKey(t *testing.T) {
 	//-- arrange
-	r := rand.New(42)
-	PASSWORD := r.ASCII(30)
-	PLAINTEXT := r.Bytes(100)
+	const PASSWORD = "Password123!"
+	PLAINTEXT := []byte("plaintext")
 
 	//-- act
 	c, salt := crypt.NewFromPassword(PASSWORD)
