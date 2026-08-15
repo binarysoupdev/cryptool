@@ -19,10 +19,6 @@ type Crypt struct {
 	cipher cipher.AEAD
 }
 
-func (c Crypt) IsNil() bool {
-	return c.cipher == nil
-}
-
 // Create a new AES-Crypt object from a key. Key must be 16, 24, or 32 bytes.
 func New(key []byte) (Crypt, error) {
 	if len(key) != 16 && len(key) != 24 && len(key) != 32 {
